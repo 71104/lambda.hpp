@@ -4,7 +4,8 @@
 using namespace std;
 
 int main() {
-	(cout << _1 << 5)
-		(6);
+	cout << "lal" << endl;
+	(cout << _1 << " lawl")((5 + _1)(6)) << endl;
+	cout << (_1 + _1)(3, 4);
 	return 0;
 }

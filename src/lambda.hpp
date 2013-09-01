@@ -19,97 +19,120 @@ namespace Lambda {
 	}
 
 
-	struct Identity :
+	template<unsigned int _i>
+	struct Bind :
+		public Bind<_i - 1>
+	{
+		template<typename _First, typename... _Arguments>
+		inline auto operator () (_First&&, _Arguments&&... Other) -> decltype(Bind<_i - 1>::operator () (Other...)) {
+			return Bind<_i - 1>::operator () (Other...);
+		}
+	};
+
+	template<>
+	struct Bind<0> :
 		public Functor
 	{
-		template<typename _Type>
-		inline _Type &&operator () (_Type &&rrArgument) {
-			return Pass(rrArgument);
+		template<typename _Type, typename... _Other>
+		inline _Type &&operator () (_Type &&rr, _Other&&...) {
+			return rr;
 		}
 	};
 
 
-	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f>
-	struct LeftShift : public Functor {};
-
-	template<typename _Left, typename _Right>
-	struct LeftShift<_Left, _Right, false, false> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		LeftShift(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left(Pass(a_rrLeft)),
-			m_Right(Pass(a_rrRight)) {}
-
-		template<typename _Argument>
-		inline auto operator () (_Argument&&) -> decltype(m_Left << m_Right) {
-			return m_Left << m_Right;
-		}
+#define LAMBDA_FUNCTOR_CLASS(Name, Operator) \
+	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f> \
+	struct Name; \
+	template<typename _Left, typename _Right> \
+	struct Name<_Left, _Right, false, false> : \
+		public Functor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left(Pass(a_rrLeft)), \
+			m_Right(Pass(a_rrRight)) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left(Arguments...) Operator m_Right(Arguments...)) { \
+			return m_Left(Arguments...) Operator m_Right(Arguments...); \
+		} \
+	}; \
+	template<typename _Left, typename _Right> \
+	struct Name<_Left, _Right, true, false> : \
+		public Functor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left(Pass(a_rrLeft)), \
+			m_Right(Pass(a_rrRight)) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left Operator m_Right(Arguments...)) { \
+			return m_Left Operator m_Right(Arguments...); \
+		} \
+	}; \
+	template<typename _Left, typename _Right> \
+	struct Name<_Left, _Right, false, true> : \
+		public Functor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left(Pass(a_rrLeft)), \
+			m_Right(Pass(a_rrRight)) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left(Arguments...) Operator m_Right) { \
+			return m_Left(Arguments...) Operator m_Right; \
+		} \
+	}; \
+	template<typename _Left, typename _Right> \
+	struct Name<_Left, _Right, true, true> : \
+		public Functor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left(Pass(a_rrLeft)), \
+			m_Right(Pass(a_rrRight)) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&...) -> decltype(m_Left Operator m_Right) { \
+			return m_Left Operator m_Right; \
+		} \
 	};
 
-	template<typename _Left, typename _Right>
-	struct LeftShift<_Left, _Right, true, false> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
+LAMBDA_FUNCTOR_CLASS(Plus, +)
+LAMBDA_FUNCTOR_CLASS(Minus, -)
+LAMBDA_FUNCTOR_CLASS(Multiply, *)
+LAMBDA_FUNCTOR_CLASS(Divide, /)
+LAMBDA_FUNCTOR_CLASS(LeftShift, <<)
 
-		LeftShift(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left(Pass(a_rrLeft)),
-			m_Right(Pass(a_rrRight)) {}
-
-		template<typename _Argument>
-		inline auto operator () (_Argument &&rrArgument) -> decltype(m_Left << m_Right(Pass(rrArgument))) {
-			return m_Left << m_Right(Pass(rrArgument));
-		}
-	};
-
-	template<typename _Left, typename _Right>
-	struct LeftShift<_Left, _Right, false, true> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		LeftShift(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left(Pass(a_rrLeft)),
-			m_Right(Pass(a_rrRight)) {}
-
-		template<typename _Argument>
-		inline auto operator () (_Argument &&rrArgument) -> decltype(m_Left(Pass(rrArgument)) << m_Right) {
-			return m_Left(Pass(rrArgument)) << m_Right;
-		}
-	};
-
-	template<typename _Left, typename _Right>
-	struct LeftShift<_Left, _Right, true, true> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		LeftShift(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left(Pass(a_rrLeft)),
-			m_Right(Pass(a_rrRight)) {}
-
-		template<typename _Argument>
-		inline auto operator () (_Argument &&rrArgument) -> decltype(m_Left(Pass(rrArgument)) << m_Right(Pass(rrArgument))) {
-			return m_Left(Pass(rrArgument)) << m_Right(Pass(rrArgument));
-		}
-	};
 }
 
 
-Lambda::Identity _1;
+Lambda::Bind<0> _1;
+Lambda::Bind<1> _2;
+Lambda::Bind<2> _3;
+Lambda::Bind<3> _4;
+Lambda::Bind<4> _5;
+Lambda::Bind<5> _6;
+Lambda::Bind<6> _7;
+Lambda::Bind<7> _8;
+Lambda::Bind<8> _9;
+Lambda::Bind<9> _10;
 
 
-template<typename _Left, typename _Right>
-Lambda::LeftShift<_Left, _Right> operator << (_Left &&rrLeft, _Right &&rrRight) {
-	return Lambda::LeftShift<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight);
-}
+#define LAMBDA_OPERATOR(Operator, FunctorClass) \
+	template<typename _Left, typename _Right> \
+	Lambda::FunctorClass<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
+		return Lambda::FunctorClass<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight); \
+	}
+
+LAMBDA_OPERATOR(+, Plus)
+LAMBDA_OPERATOR(-, Minus)
+LAMBDA_OPERATOR(*, Multiply)
+LAMBDA_OPERATOR(/, Divide)
+LAMBDA_OPERATOR(<<, LeftShift)
