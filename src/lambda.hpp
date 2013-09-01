@@ -45,7 +45,7 @@ namespace Lambda {
 	};
 
 
-#define LAMBDA_UNARY_FUNCTOR_CLASS(Operator, Name) \
+#define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
 	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
 	struct Name; \
 	template<typename _Operand> \
@@ -75,8 +75,44 @@ namespace Lambda {
 		} \
 	};
 
-LAMBDA_UNARY_FUNCTOR_CLASS(!, LogicalNot)
-LAMBDA_UNARY_FUNCTOR_CLASS(~, BitwiseNot)
+#define LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
+	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
+	struct Name; \
+	template<typename _Operand> \
+	struct Name<_Operand, false> : \
+		public Functor \
+	{ \
+		_Operand m_Operand; \
+		Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand(Pass(a_rrOperand)) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype((m_Operand(Arguments...)) Operator) { \
+			return (m_Operand(Arguments...)) Operator; \
+		} \
+	}; \
+	template<typename _Operand> \
+	struct Name<_Operand, true> : \
+		public Functor \
+	{ \
+		_Operand m_Operand; \
+		Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand(Pass(a_rrOperand)) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&...) -> decltype(m_Operand Operator) { \
+			return m_Operand Operator; \
+		} \
+	};
+
+LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(+, UnaryPlus)
+LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(-, UnaryMinus)
+LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(!, LogicalNot)
+LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(~, BitwiseNot)
+LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(++, PreIncrement)
+LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(--, PreDecrement)
+LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(++, PostIncrement)
+LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 
 
 #define LAMBDA_BINARY_FUNCTOR_CLASS(Operator, Name) \
@@ -143,9 +179,9 @@ LAMBDA_UNARY_FUNCTOR_CLASS(~, BitwiseNot)
 		} \
 	};
 
-LAMBDA_BINARY_FUNCTOR_CLASS(+, Plus)
+LAMBDA_BINARY_FUNCTOR_CLASS(+, BinaryPlus)
 LAMBDA_BINARY_FUNCTOR_CLASS(+=, CompoundPlus)
-LAMBDA_BINARY_FUNCTOR_CLASS(-, Minus)
+LAMBDA_BINARY_FUNCTOR_CLASS(-, BinaryMinus)
 LAMBDA_BINARY_FUNCTOR_CLASS(-=, CompoundMinus)
 LAMBDA_BINARY_FUNCTOR_CLASS(*, Multiply)
 LAMBDA_BINARY_FUNCTOR_CLASS(*=, CompoundMultiply)
@@ -194,9 +230,9 @@ Lambda::Bind<9> _10;
 		return Lambda::FunctorClass<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight); \
 	}
 
-LAMBDA_BINARY_OPERATOR(+, Plus)
+LAMBDA_BINARY_OPERATOR(+, BinaryPlus)
 LAMBDA_BINARY_OPERATOR(+=, CompoundPlus)
-LAMBDA_BINARY_OPERATOR(-, Minus)
+LAMBDA_BINARY_OPERATOR(-, BinaryMinus)
 LAMBDA_BINARY_OPERATOR(-=, CompoundMinus)
 LAMBDA_BINARY_OPERATOR(*, Multiply)
 LAMBDA_BINARY_OPERATOR(*=, CompoundMultiply)
