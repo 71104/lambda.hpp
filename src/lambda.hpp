@@ -10,7 +10,12 @@ namespace Lambda {
 
 	template<typename _Type>
 	struct IsBound {
-		static bool constexpr s_f = !is_base_of<Functor, typename remove_cv<typename remove_reference<_Type>::type>::type>::value;
+		static bool constexpr s_f = !is_base_of<
+			Functor,
+			typename remove_cv<
+				typename remove_reference<_Type>::type
+				>::type
+			>::value;
 	};
 
 	template<typename _Type>
@@ -40,7 +45,41 @@ namespace Lambda {
 	};
 
 
-#define LAMBDA_FUNCTOR_CLASS(Operator, Name) \
+#define LAMBDA_UNARY_FUNCTOR_CLASS(Operator, Name) \
+	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
+	struct Name; \
+	template<typename _Operand> \
+	struct Name<_Operand, false> : \
+		public Functor \
+	{ \
+		_Operand m_Operand; \
+		Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand(Pass(a_rrOperand)) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(Operator(m_Operand(Arguments...))) { \
+			return Operator(m_Operand(Arguments...)); \
+		} \
+	}; \
+	template<typename _Operand> \
+	struct Name<_Operand, true> : \
+		public Functor \
+	{ \
+		_Operand m_Operand; \
+		Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand(Pass(a_rrOperand)) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&...) -> decltype(Operator m_Operand) { \
+			return Operator m_Operand; \
+		} \
+	};
+
+LAMBDA_UNARY_FUNCTOR_CLASS(!, LogicalNot)
+LAMBDA_UNARY_FUNCTOR_CLASS(~, BitwiseNot)
+
+
+#define LAMBDA_BINARY_FUNCTOR_CLASS(Operator, Name) \
 	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f> \
 	struct Name; \
 	template<typename _Left, typename _Right> \
@@ -104,35 +143,35 @@ namespace Lambda {
 		} \
 	};
 
-LAMBDA_FUNCTOR_CLASS(+, Plus)
-LAMBDA_FUNCTOR_CLASS(+=, CompoundPlus)
-LAMBDA_FUNCTOR_CLASS(-, Minus)
-LAMBDA_FUNCTOR_CLASS(-=, CompoundMinus)
-LAMBDA_FUNCTOR_CLASS(*, Multiply)
-LAMBDA_FUNCTOR_CLASS(*=, CompoundMultiply)
-LAMBDA_FUNCTOR_CLASS(/, Divide)
-LAMBDA_FUNCTOR_CLASS(/=, CompoundDivide)
-LAMBDA_FUNCTOR_CLASS(%, Modulus)
-LAMBDA_FUNCTOR_CLASS(%=, CompoundModulus)
-LAMBDA_FUNCTOR_CLASS(&, BitwiseAnd)
-LAMBDA_FUNCTOR_CLASS(|, BitwiseOr)
-LAMBDA_FUNCTOR_CLASS(^, BitwiseXor)
-LAMBDA_FUNCTOR_CLASS(&=, CompoundAnd)
-LAMBDA_FUNCTOR_CLASS(|=, CompoundOr)
-LAMBDA_FUNCTOR_CLASS(^=, CompoundXor)
-LAMBDA_FUNCTOR_CLASS(&&, LogicalAnd)
-LAMBDA_FUNCTOR_CLASS(||, LogicalOr)
-LAMBDA_FUNCTOR_CLASS(<<, LeftShift)
-LAMBDA_FUNCTOR_CLASS(<<=, CompoundLeftShift)
-LAMBDA_FUNCTOR_CLASS(>>, RightShift)
-LAMBDA_FUNCTOR_CLASS(>>=, CompoundRightShift)
-//LAMBDA_FUNCTOR_CLASS(=, Assignment)
-LAMBDA_FUNCTOR_CLASS(==, Equals)
-LAMBDA_FUNCTOR_CLASS(!=, NotEqual)
-LAMBDA_FUNCTOR_CLASS(<, LessThan)
-LAMBDA_FUNCTOR_CLASS(>, GreaterThan)
-LAMBDA_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
-LAMBDA_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
+LAMBDA_BINARY_FUNCTOR_CLASS(+, Plus)
+LAMBDA_BINARY_FUNCTOR_CLASS(+=, CompoundPlus)
+LAMBDA_BINARY_FUNCTOR_CLASS(-, Minus)
+LAMBDA_BINARY_FUNCTOR_CLASS(-=, CompoundMinus)
+LAMBDA_BINARY_FUNCTOR_CLASS(*, Multiply)
+LAMBDA_BINARY_FUNCTOR_CLASS(*=, CompoundMultiply)
+LAMBDA_BINARY_FUNCTOR_CLASS(/, Divide)
+LAMBDA_BINARY_FUNCTOR_CLASS(/=, CompoundDivide)
+LAMBDA_BINARY_FUNCTOR_CLASS(%, Modulus)
+LAMBDA_BINARY_FUNCTOR_CLASS(%=, CompoundModulus)
+LAMBDA_BINARY_FUNCTOR_CLASS(&, BitwiseAnd)
+LAMBDA_BINARY_FUNCTOR_CLASS(|, BitwiseOr)
+LAMBDA_BINARY_FUNCTOR_CLASS(^, BitwiseXor)
+LAMBDA_BINARY_FUNCTOR_CLASS(&=, CompoundAnd)
+LAMBDA_BINARY_FUNCTOR_CLASS(|=, CompoundOr)
+LAMBDA_BINARY_FUNCTOR_CLASS(^=, CompoundXor)
+LAMBDA_BINARY_FUNCTOR_CLASS(&&, LogicalAnd)
+LAMBDA_BINARY_FUNCTOR_CLASS(||, LogicalOr)
+LAMBDA_BINARY_FUNCTOR_CLASS(<<, LeftShift)
+LAMBDA_BINARY_FUNCTOR_CLASS(<<=, CompoundLeftShift)
+LAMBDA_BINARY_FUNCTOR_CLASS(>>, RightShift)
+LAMBDA_BINARY_FUNCTOR_CLASS(>>=, CompoundRightShift)
+//LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
+LAMBDA_BINARY_FUNCTOR_CLASS(==, Equals)
+LAMBDA_BINARY_FUNCTOR_CLASS(!=, NotEqual)
+LAMBDA_BINARY_FUNCTOR_CLASS(<, LessThan)
+LAMBDA_BINARY_FUNCTOR_CLASS(>, GreaterThan)
+LAMBDA_BINARY_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
+LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 }
 
@@ -149,38 +188,38 @@ Lambda::Bind<8> _9;
 Lambda::Bind<9> _10;
 
 
-#define LAMBDA_OPERATOR(Operator, FunctorClass) \
+#define LAMBDA_BINARY_OPERATOR(Operator, FunctorClass) \
 	template<typename _Left, typename _Right> \
 	Lambda::FunctorClass<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
 		return Lambda::FunctorClass<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight); \
 	}
 
-LAMBDA_OPERATOR(+, Plus)
-LAMBDA_OPERATOR(+=, CompoundPlus)
-LAMBDA_OPERATOR(-, Minus)
-LAMBDA_OPERATOR(-=, CompoundMinus)
-LAMBDA_OPERATOR(*, Multiply)
-LAMBDA_OPERATOR(*=, CompoundMultiply)
-LAMBDA_OPERATOR(/, Divide)
-LAMBDA_OPERATOR(/=, CompoundDivide)
-LAMBDA_OPERATOR(%, Modulus)
-LAMBDA_OPERATOR(%=, CompoundModulus)
-LAMBDA_OPERATOR(&, BitwiseAnd)
-LAMBDA_OPERATOR(|, BitwiseOr)
-LAMBDA_OPERATOR(^, BitwiseXor)
-LAMBDA_OPERATOR(&=, CompoundAnd)
-LAMBDA_OPERATOR(|=, CompoundOr)
-LAMBDA_OPERATOR(^=, CompoundXor)
-LAMBDA_OPERATOR(&&, LogicalAnd)
-LAMBDA_OPERATOR(||, LogicalOr)
-LAMBDA_OPERATOR(<<, LeftShift)
-LAMBDA_OPERATOR(<<=, CompoundLeftShift)
-LAMBDA_OPERATOR(>>, RightShift)
-LAMBDA_OPERATOR(>>=, CompoundRightShift)
-//LAMBDA_OPERATOR(=, Assignment)
-LAMBDA_OPERATOR(==, Equals)
-LAMBDA_OPERATOR(!=, NotEqual)
-LAMBDA_OPERATOR(<, LessThan)
-LAMBDA_OPERATOR(>, GreaterThan)
-LAMBDA_OPERATOR(<=, LessThanOrEqualTo)
-LAMBDA_OPERATOR(>=, GreaterThanOrEqualTo)
+LAMBDA_BINARY_OPERATOR(+, Plus)
+LAMBDA_BINARY_OPERATOR(+=, CompoundPlus)
+LAMBDA_BINARY_OPERATOR(-, Minus)
+LAMBDA_BINARY_OPERATOR(-=, CompoundMinus)
+LAMBDA_BINARY_OPERATOR(*, Multiply)
+LAMBDA_BINARY_OPERATOR(*=, CompoundMultiply)
+LAMBDA_BINARY_OPERATOR(/, Divide)
+LAMBDA_BINARY_OPERATOR(/=, CompoundDivide)
+LAMBDA_BINARY_OPERATOR(%, Modulus)
+LAMBDA_BINARY_OPERATOR(%=, CompoundModulus)
+LAMBDA_BINARY_OPERATOR(&, BitwiseAnd)
+LAMBDA_BINARY_OPERATOR(|, BitwiseOr)
+LAMBDA_BINARY_OPERATOR(^, BitwiseXor)
+LAMBDA_BINARY_OPERATOR(&=, CompoundAnd)
+LAMBDA_BINARY_OPERATOR(|=, CompoundOr)
+LAMBDA_BINARY_OPERATOR(^=, CompoundXor)
+LAMBDA_BINARY_OPERATOR(&&, LogicalAnd)
+LAMBDA_BINARY_OPERATOR(||, LogicalOr)
+LAMBDA_BINARY_OPERATOR(<<, LeftShift)
+LAMBDA_BINARY_OPERATOR(<<=, CompoundLeftShift)
+LAMBDA_BINARY_OPERATOR(>>, RightShift)
+LAMBDA_BINARY_OPERATOR(>>=, CompoundRightShift)
+//LAMBDA_BINARY_OPERATOR(=, Assignment)
+LAMBDA_BINARY_OPERATOR(==, Equals)
+LAMBDA_BINARY_OPERATOR(!=, NotEqual)
+LAMBDA_BINARY_OPERATOR(<, LessThan)
+LAMBDA_BINARY_OPERATOR(>, GreaterThan)
+LAMBDA_BINARY_OPERATOR(<=, LessThanOrEqualTo)
+LAMBDA_BINARY_OPERATOR(>=, GreaterThanOrEqualTo)

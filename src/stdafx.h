@@ -2,5 +2,6 @@
 #define __STDAFX_H__
 
 #include <iostream>
+#include <string>
 
 #endif
