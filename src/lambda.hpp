@@ -40,7 +40,7 @@ namespace Lambda {
 	};
 
 
-#define LAMBDA_FUNCTOR_CLASS(Name, Operator) \
+#define LAMBDA_FUNCTOR_CLASS(Operator, Name) \
 	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f> \
 	struct Name; \
 	template<typename _Left, typename _Right> \
@@ -104,11 +104,35 @@ namespace Lambda {
 		} \
 	};
 
-LAMBDA_FUNCTOR_CLASS(Plus, +)
-LAMBDA_FUNCTOR_CLASS(Minus, -)
-LAMBDA_FUNCTOR_CLASS(Multiply, *)
-LAMBDA_FUNCTOR_CLASS(Divide, /)
-LAMBDA_FUNCTOR_CLASS(LeftShift, <<)
+LAMBDA_FUNCTOR_CLASS(+, Plus)
+LAMBDA_FUNCTOR_CLASS(+=, CompoundPlus)
+LAMBDA_FUNCTOR_CLASS(-, Minus)
+LAMBDA_FUNCTOR_CLASS(-=, CompoundMinus)
+LAMBDA_FUNCTOR_CLASS(*, Multiply)
+LAMBDA_FUNCTOR_CLASS(*=, CompoundMultiply)
+LAMBDA_FUNCTOR_CLASS(/, Divide)
+LAMBDA_FUNCTOR_CLASS(/=, CompoundDivide)
+LAMBDA_FUNCTOR_CLASS(%, Modulus)
+LAMBDA_FUNCTOR_CLASS(%=, CompoundModulus)
+LAMBDA_FUNCTOR_CLASS(&, BitwiseAnd)
+LAMBDA_FUNCTOR_CLASS(|, BitwiseOr)
+LAMBDA_FUNCTOR_CLASS(^, BitwiseXor)
+LAMBDA_FUNCTOR_CLASS(&=, CompoundAnd)
+LAMBDA_FUNCTOR_CLASS(|=, CompoundOr)
+LAMBDA_FUNCTOR_CLASS(^=, CompoundXor)
+LAMBDA_FUNCTOR_CLASS(&&, LogicalAnd)
+LAMBDA_FUNCTOR_CLASS(||, LogicalOr)
+LAMBDA_FUNCTOR_CLASS(<<, LeftShift)
+LAMBDA_FUNCTOR_CLASS(<<=, CompoundLeftShift)
+LAMBDA_FUNCTOR_CLASS(>>, RightShift)
+LAMBDA_FUNCTOR_CLASS(>>=, CompoundRightShift)
+//LAMBDA_FUNCTOR_CLASS(=, Assignment)
+LAMBDA_FUNCTOR_CLASS(==, Equals)
+LAMBDA_FUNCTOR_CLASS(!=, NotEqual)
+LAMBDA_FUNCTOR_CLASS(<, LessThan)
+LAMBDA_FUNCTOR_CLASS(>, GreaterThan)
+LAMBDA_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
+LAMBDA_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 }
 
@@ -132,7 +156,31 @@ Lambda::Bind<9> _10;
 	}
 
 LAMBDA_OPERATOR(+, Plus)
+LAMBDA_OPERATOR(+=, CompoundPlus)
 LAMBDA_OPERATOR(-, Minus)
+LAMBDA_OPERATOR(-=, CompoundMinus)
 LAMBDA_OPERATOR(*, Multiply)
+LAMBDA_OPERATOR(*=, CompoundMultiply)
 LAMBDA_OPERATOR(/, Divide)
+LAMBDA_OPERATOR(/=, CompoundDivide)
+LAMBDA_OPERATOR(%, Modulus)
+LAMBDA_OPERATOR(%=, CompoundModulus)
+LAMBDA_OPERATOR(&, BitwiseAnd)
+LAMBDA_OPERATOR(|, BitwiseOr)
+LAMBDA_OPERATOR(^, BitwiseXor)
+LAMBDA_OPERATOR(&=, CompoundAnd)
+LAMBDA_OPERATOR(|=, CompoundOr)
+LAMBDA_OPERATOR(^=, CompoundXor)
+LAMBDA_OPERATOR(&&, LogicalAnd)
+LAMBDA_OPERATOR(||, LogicalOr)
 LAMBDA_OPERATOR(<<, LeftShift)
+LAMBDA_OPERATOR(<<=, CompoundLeftShift)
+LAMBDA_OPERATOR(>>, RightShift)
+LAMBDA_OPERATOR(>>=, CompoundRightShift)
+//LAMBDA_OPERATOR(=, Assignment)
+LAMBDA_OPERATOR(==, Equals)
+LAMBDA_OPERATOR(!=, NotEqual)
+LAMBDA_OPERATOR(<, LessThan)
+LAMBDA_OPERATOR(>, GreaterThan)
+LAMBDA_OPERATOR(<=, LessThanOrEqualTo)
+LAMBDA_OPERATOR(>=, GreaterThanOrEqualTo)
