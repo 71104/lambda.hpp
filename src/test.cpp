@@ -9,8 +9,8 @@ int main() {
 	cout << (_1 + _1)(3, 4) << endl;
 	cout << _1("lel", "lol") << endl;
 
-	//int x = 4, y = 6, z = 2;
-	//cout << _2(x, y, z) << endl;
+	int x = 4;
+	(cout << _1 << " " << ++_1 << " " << _1)(x) << " " << x << endl;
 
 	return 0;
 }

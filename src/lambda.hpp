@@ -26,11 +26,16 @@ namespace Lambda {
 
 	template<unsigned int _i>
 	struct Bind :
-		public Bind<_i - 1>
+		public Functor
 	{
 		template<typename _First, typename... _Other>
-		inline auto operator () (_First&&, _Other&&... Other) -> decltype(Bind<_i - 1>::operator () (Other...)) {
-			return Bind<_i - 1>::operator () (Other...);
+		inline static auto Apply(_First&&, _Other&&... rrOther) -> decltype(Bind<_i - 1>::Apply(rrOther...)) {
+			return Bind<_i - 1>::Apply(rrOther...);
+		}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Bind<_i>::Apply(rrArguments...)) {
+			return Bind<_i>::Apply(rrArguments...);
 		}
 	};
 
@@ -38,6 +43,11 @@ namespace Lambda {
 	struct Bind<0> :
 		public Functor
 	{
+		template<typename _Type, typename... _Other>
+		inline static _Type &&Apply(_Type &&rr, _Other&&...) {
+			return rr;
+		}
+
 		template<typename _Type, typename... _Other>
 		inline _Type &&operator () (_Type &&rr, _Other&&...) {
 			return rr;
@@ -224,23 +234,23 @@ Lambda::Bind<8> _9;
 Lambda::Bind<9> _10;
 
 
-#define LAMBDA_POSTFIX_UNARY_OPERATOR(Operator, FunctorClass) \
+#define LAMBDA_PREFIX_UNARY_OPERATOR(Operator, FunctorClass) \
 	template<typename _Operand> \
-	Lambda::FunctorClass<_Operand> operator Operator (_Operand &&rrOperand) { \
+	inline Lambda::FunctorClass<_Operand> operator Operator (_Operand &&rrOperand) { \
 		return Lambda::FunctorClass<_Operand>((_Operand&&)rrOperand); \
 	}
 
-LAMBDA_POSTFIX_UNARY_OPERATOR(+, UnaryPlus)
-LAMBDA_POSTFIX_UNARY_OPERATOR(-, UnaryMinus)
-LAMBDA_POSTFIX_UNARY_OPERATOR(!, LogicalNot)
-LAMBDA_POSTFIX_UNARY_OPERATOR(~, BitwiseNot)
-LAMBDA_POSTFIX_UNARY_OPERATOR(++, PostIncrement)
-LAMBDA_POSTFIX_UNARY_OPERATOR(--, PostDecrement)
+LAMBDA_PREFIX_UNARY_OPERATOR(+, UnaryPlus)
+LAMBDA_PREFIX_UNARY_OPERATOR(-, UnaryMinus)
+LAMBDA_PREFIX_UNARY_OPERATOR(!, LogicalNot)
+LAMBDA_PREFIX_UNARY_OPERATOR(~, BitwiseNot)
+LAMBDA_PREFIX_UNARY_OPERATOR(++, PostIncrement)
+LAMBDA_PREFIX_UNARY_OPERATOR(--, PostDecrement)
 
 
 #define LAMBDA_BINARY_OPERATOR(Operator, FunctorClass) \
 	template<typename _Left, typename _Right> \
-	Lambda::FunctorClass<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
+	inline Lambda::FunctorClass<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
 		return Lambda::FunctorClass<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight); \
 	}
 
