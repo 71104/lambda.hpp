@@ -28,8 +28,8 @@ namespace Lambda {
 	struct Bind :
 		public Bind<_i - 1>
 	{
-		template<typename _First, typename... _Arguments>
-		inline auto operator () (_First&&, _Arguments&&... Other) -> decltype(Bind<_i - 1>::operator () (Other...)) {
+		template<typename _First, typename... _Other>
+		inline auto operator () (_First&&, _Other&&... Other) -> decltype(Bind<_i - 1>::operator () (Other...)) {
 			return Bind<_i - 1>::operator () (Other...);
 		}
 	};
@@ -222,6 +222,20 @@ Lambda::Bind<6> _7;
 Lambda::Bind<7> _8;
 Lambda::Bind<8> _9;
 Lambda::Bind<9> _10;
+
+
+#define LAMBDA_POSTFIX_UNARY_OPERATOR(Operator, FunctorClass) \
+	template<typename _Operand> \
+	Lambda::FunctorClass<_Operand> operator Operator (_Operand &&rrOperand) { \
+		return Lambda::FunctorClass<_Operand>((_Operand&&)rrOperand); \
+	}
+
+LAMBDA_POSTFIX_UNARY_OPERATOR(+, UnaryPlus)
+LAMBDA_POSTFIX_UNARY_OPERATOR(-, UnaryMinus)
+LAMBDA_POSTFIX_UNARY_OPERATOR(!, LogicalNot)
+LAMBDA_POSTFIX_UNARY_OPERATOR(~, BitwiseNot)
+LAMBDA_POSTFIX_UNARY_OPERATOR(++, PostIncrement)
+LAMBDA_POSTFIX_UNARY_OPERATOR(--, PostDecrement)
 
 
 #define LAMBDA_BINARY_OPERATOR(Operator, FunctorClass) \
