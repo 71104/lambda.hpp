@@ -9,6 +9,16 @@ namespace Lambda {
 
 
 	template<typename _Type>
+	struct IsFree {
+		static bool constexpr s_f = is_base_of<
+			Functor,
+			typename remove_cv<
+				typename remove_reference<_Type>::type
+				>::type
+			>::value;
+	};
+
+	template<typename _Type>
 	struct IsBound {
 		static bool constexpr s_f = !is_base_of<
 			Functor,
@@ -19,15 +29,47 @@ namespace Lambda {
 	};
 
 
-	template<typename _Type, bool _fBound = IsBound<_Type>::s_f>
+	template<typename _Type, bool _fFree = IsFree<_Type>::s_f>
 	struct FunctorTraits;
 
 	template<typename _Type>
-	struct FunctorTraits<_Type, true> {};
+	struct FunctorTraits<_Type, false> {
+		static inline _Type Pass(_Type &&rr) {
+			return rr;
+		}
+	};
+
+
+	template<typename _Left, typename _Right, bool _fLeftFree = IsFree<_Left>::s_f, bool _fRightFree = IsFree<_Right>::s_f>
+	struct FunctorTraits2;
+
+	template<typename _Left, typename _Right>
+	struct FunctorTraits2<_Left, _Right, true, false> {
+		template<typename _FunctorClass>
+		static inline _FunctorClass Build(_Left &&rrLeft, _Right &&rrRight) {
+			return _FunctorClass((_Left&&)rrLeft, (_Right&&)rrRight);
+		}
+	};
+
+	template<typename _Left, typename _Right>
+	struct FunctorTraits2<_Left, _Right, false, true> {
+		template<typename _FunctorClass>
+		static inline _FunctorClass Build(_Left &&rrLeft, _Right &&rrRight) {
+			return _FunctorClass((_Left&&)rrLeft, (_Right&&)rrRight);
+		}
+	};
+
+	template<typename _Left, typename _Right>
+	struct FunctorTraits2<_Left, _Right, true, true> {
+		template<typename _FunctorClass>
+		static inline _FunctorClass Build(_Left &&rrLeft, _Right &&rrRight) {
+			return _FunctorClass((_Left&&)rrLeft, (_Right&&)rrRight);
+		}
+	};
 
 
 	template<typename _Type>
-	inline _Type &&Pass(_Type &&rr) {
+	inline _Type Pass(_Type &&rr) {
 		return rr;
 	}
 
@@ -245,7 +287,7 @@ Lambda::Bind<9> _10;
 #define LAMBDA_PREFIX_UNARY_OPERATOR(Operator, FunctorClass) \
 	template<typename _Operand, typename _Traits = Lambda::FunctorTraits<_Operand>> \
 	inline Lambda::FunctorClass<_Operand> operator Operator (_Operand &&rrOperand) { \
-		return Lambda::FunctorClass<_Operand>((_Operand&&)rrOperand); \
+		return Lambda::FunctorClass<_Operand>(_Traits::Pass(rrOperand)); \
 	}
 
 LAMBDA_PREFIX_UNARY_OPERATOR(+, UnaryPlus)
@@ -257,9 +299,9 @@ LAMBDA_PREFIX_UNARY_OPERATOR(--, PreDecrement)
 
 
 #define LAMBDA_BINARY_OPERATOR(Operator, FunctorClass) \
-	template<typename _Left, typename _Right, typename _LeftTraits = Lambda::FunctorTraits<_Left>, typename _RightTraits = Lambda::FunctorTraits<_Right>> \
+	template<typename _Left, typename _Right, typename _Traits = Lambda::FunctorTraits2<_Left, _Right>> \
 	inline Lambda::FunctorClass<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
-		return Lambda::FunctorClass<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight); \
+		return _Traits::Build<typename Lambda::FunctorClass<_Left, _Right>>((_Left&&)rrLeft, (_Right&&)rrRight); \
 	}
 
 LAMBDA_BINARY_OPERATOR(+, BinaryPlus)
