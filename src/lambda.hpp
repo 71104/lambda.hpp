@@ -7,6 +7,12 @@ namespace Lambda {
 
 	struct Functor {};
 
+	template<typename _Type, bool _fInheritsFunctor = is_base_of<Functor, _Type>::value>
+	struct FunctorTraits;
+
+	template<typename _Type>
+	struct FunctorTraits<_Type, true> {};
+
 
 	template<typename _Type>
 	struct IsBound {
@@ -211,7 +217,7 @@ LAMBDA_BINARY_FUNCTOR_CLASS(<<, LeftShift)
 LAMBDA_BINARY_FUNCTOR_CLASS(<<=, CompoundLeftShift)
 LAMBDA_BINARY_FUNCTOR_CLASS(>>, RightShift)
 LAMBDA_BINARY_FUNCTOR_CLASS(>>=, CompoundRightShift)
-//LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
+LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 LAMBDA_BINARY_FUNCTOR_CLASS(==, Equals)
 LAMBDA_BINARY_FUNCTOR_CLASS(!=, NotEqual)
 LAMBDA_BINARY_FUNCTOR_CLASS(<, LessThan)
@@ -235,7 +241,7 @@ Lambda::Bind<9> _10;
 
 
 #define LAMBDA_PREFIX_UNARY_OPERATOR(Operator, FunctorClass) \
-	template<typename _Operand> \
+	template<typename _Operand, typename _Traits = Lambda::FunctorTraits<_Operand>> \
 	inline Lambda::FunctorClass<_Operand> operator Operator (_Operand &&rrOperand) { \
 		return Lambda::FunctorClass<_Operand>((_Operand&&)rrOperand); \
 	}
@@ -249,7 +255,7 @@ LAMBDA_PREFIX_UNARY_OPERATOR(--, PreDecrement)
 
 
 #define LAMBDA_BINARY_OPERATOR(Operator, FunctorClass) \
-	template<typename _Left, typename _Right> \
+	template<typename _Left, typename _Right, typename _LeftTraits = Lambda::FunctorTraits<_Left>, typename _RightTraits = Lambda::FunctorTraits<_Right>> \
 	inline Lambda::FunctorClass<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
 		return Lambda::FunctorClass<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight); \
 	}
