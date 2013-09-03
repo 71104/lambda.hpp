@@ -7,12 +7,6 @@ namespace Lambda {
 
 	struct Functor {};
 
-	template<typename _Type, bool _fInheritsFunctor = is_base_of<Functor, _Type>::value>
-	struct FunctorTraits;
-
-	template<typename _Type>
-	struct FunctorTraits<_Type, true> {};
-
 
 	template<typename _Type>
 	struct IsBound {
@@ -23,6 +17,14 @@ namespace Lambda {
 				>::type
 			>::value;
 	};
+
+
+	template<typename _Type, bool _fBound = IsBound<_Type>::s_f>
+	struct FunctorTraits;
+
+	template<typename _Type>
+	struct FunctorTraits<_Type, true> {};
+
 
 	template<typename _Type>
 	inline _Type &&Pass(_Type &&rr) {
