@@ -33,7 +33,7 @@ namespace Lambda {
 	struct FunctorTraits;
 
 	template<typename _Type>
-	struct FunctorTraits<_Type, false> {
+	struct FunctorTraits<_Type, true> {
 		static inline _Type Pass(_Type &&rr) {
 			return rr;
 		}
@@ -301,7 +301,7 @@ LAMBDA_PREFIX_UNARY_OPERATOR(--, PreDecrement)
 #define LAMBDA_BINARY_OPERATOR(Operator, FunctorClass) \
 	template<typename _Left, typename _Right, typename _Traits = Lambda::FunctorTraits2<_Left, _Right>> \
 	inline Lambda::FunctorClass<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
-		return _Traits::Build<typename Lambda::FunctorClass<_Left, _Right>>((_Left&&)rrLeft, (_Right&&)rrRight); \
+		return _Traits::template Build<Lambda::FunctorClass<_Left, _Right>>((_Left&&)rrLeft, (_Right&&)rrRight); \
 	}
 
 LAMBDA_BINARY_OPERATOR(+, BinaryPlus)
