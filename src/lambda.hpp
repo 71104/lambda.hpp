@@ -33,11 +33,7 @@ namespace Lambda {
 	struct FunctorTraits;
 
 	template<typename _Type>
-	struct FunctorTraits<_Type, true> {
-		static inline _Type Pass(_Type &&rr) {
-			return rr;
-		}
-	};
+	struct FunctorTraits<_Type, true> {};
 
 
 	template<typename _Left, typename _Right, bool _fLeftFree = IsFree<_Left>::s_f, bool _fRightFree = IsFree<_Right>::s_f>
@@ -66,12 +62,6 @@ namespace Lambda {
 			return _FunctorClass((_Left&&)rrLeft, (_Right&&)rrRight);
 		}
 	};
-
-
-	template<typename _Type>
-	inline _Type Pass(_Type &&rr) {
-		return rr;
-	}
 
 
 	template<unsigned int _i>
@@ -115,7 +105,7 @@ namespace Lambda {
 		_Operand m_Operand; \
 		Name(_Operand &&a_rrOperand) \
 			: \
-		m_Operand(Pass(a_rrOperand)) {} \
+		m_Operand((_Operand&&)a_rrOperand) {} \
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(Operator(m_Operand(Arguments...))) { \
 			return Operator(m_Operand(Arguments...)); \
@@ -128,7 +118,7 @@ namespace Lambda {
 		_Operand m_Operand; \
 		Name(_Operand &&a_rrOperand) \
 			: \
-		m_Operand(Pass(a_rrOperand)) {} \
+		m_Operand((_Operand&&)a_rrOperand) {} \
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&...) -> decltype(Operator m_Operand) { \
 			return Operator m_Operand; \
@@ -145,7 +135,7 @@ namespace Lambda {
 		_Operand m_Operand; \
 		Name(_Operand &&a_rrOperand) \
 			: \
-		m_Operand(Pass(a_rrOperand)) {} \
+		m_Operand((_Operand&&)a_rrOperand) {} \
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&... Arguments) -> decltype((m_Operand(Arguments...)) Operator) { \
 			return (m_Operand(Arguments...)) Operator; \
@@ -158,7 +148,7 @@ namespace Lambda {
 		_Operand m_Operand; \
 		Name(_Operand &&a_rrOperand) \
 			: \
-		m_Operand(Pass(a_rrOperand)) {} \
+		m_Operand((_Operand&&)a_rrOperand) {} \
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&...) -> decltype(m_Operand Operator) { \
 			return m_Operand Operator; \
@@ -186,8 +176,8 @@ LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 		_Right m_Right; \
 		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
 			: \
-		m_Left(Pass(a_rrLeft)), \
-			m_Right(Pass(a_rrRight)) {} \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left(Arguments...) Operator m_Right(Arguments...)) { \
 			return m_Left(Arguments...) Operator m_Right(Arguments...); \
@@ -201,8 +191,8 @@ LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 		_Right m_Right; \
 		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
 			: \
-		m_Left(Pass(a_rrLeft)), \
-			m_Right(Pass(a_rrRight)) {} \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left Operator m_Right(Arguments...)) { \
 			return m_Left Operator m_Right(Arguments...); \
@@ -216,8 +206,8 @@ LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 		_Right m_Right; \
 		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
 			: \
-		m_Left(Pass(a_rrLeft)), \
-			m_Right(Pass(a_rrRight)) {} \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left(Arguments...) Operator m_Right) { \
 			return m_Left(Arguments...) Operator m_Right; \
@@ -231,8 +221,8 @@ LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 		_Right m_Right; \
 		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
 			: \
-		m_Left(Pass(a_rrLeft)), \
-			m_Right(Pass(a_rrRight)) {} \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&...) -> decltype(m_Left Operator m_Right) { \
 			return m_Left Operator m_Right; \
@@ -287,7 +277,7 @@ Lambda::Bind<9> _10;
 #define LAMBDA_PREFIX_UNARY_OPERATOR(Operator, FunctorClass) \
 	template<typename _Operand, typename _Traits = Lambda::FunctorTraits<_Operand>> \
 	inline Lambda::FunctorClass<_Operand> operator Operator (_Operand &&rrOperand) { \
-		return Lambda::FunctorClass<_Operand>(_Traits::Pass(rrOperand)); \
+		return Lambda::FunctorClass<_Operand>((_Operand&&)rrOperand); \
 	}
 
 LAMBDA_PREFIX_UNARY_OPERATOR(+, UnaryPlus)
