@@ -69,7 +69,7 @@ namespace Lambda {
 		public Functor
 	{
 		template<typename _First, typename... _Other>
-		inline static auto Apply(_First&&, _Other&&... rrOther) -> decltype(Bind<_i - 1>::Apply(rrOther...)) {
+		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Bind<_i - 1>::Apply(rrOther...)) {
 			return Bind<_i - 1>::Apply(rrOther...);
 		}
 
@@ -84,7 +84,7 @@ namespace Lambda {
 		public Functor
 	{
 		template<typename _Type, typename... _Other>
-		inline static _Type &&Apply(_Type &&rr, _Other&&...) {
+		static inline _Type &&Apply(_Type &&rr, _Other&&...) {
 			return rr;
 		}
 
@@ -155,6 +155,7 @@ namespace Lambda {
 		} \
 	};
 
+LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(*, Indirection)
 LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(+, UnaryPlus)
 LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(-, UnaryMinus)
 LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(!, LogicalNot)
@@ -280,6 +281,7 @@ Lambda::Bind<9> _10;
 		return Lambda::FunctorClass<_Operand>((_Operand&&)rrOperand); \
 	}
 
+LAMBDA_PREFIX_UNARY_OPERATOR(*, Indirection)
 LAMBDA_PREFIX_UNARY_OPERATOR(+, UnaryPlus)
 LAMBDA_PREFIX_UNARY_OPERATOR(-, UnaryMinus)
 LAMBDA_PREFIX_UNARY_OPERATOR(!, LogicalNot)
