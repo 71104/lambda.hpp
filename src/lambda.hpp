@@ -73,22 +73,22 @@ namespace Lambda {
 
 
 	template<unsigned int _i>
-	struct Bind :
+	struct Placeholder :
 		public Functor
 	{
 		template<typename _First, typename... _Other>
-		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Bind<_i - 1>::Apply(rrOther...)) {
-			return Bind<_i - 1>::Apply(rrOther...);
+		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Placeholder<_i - 1>::Apply(rrOther...)) {
+			return Placeholder<_i - 1>::Apply(rrOther...);
 		}
 
 		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Bind<_i>::Apply(rrArguments...)) {
-			return Bind<_i>::Apply(rrArguments...);
+		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Placeholder<_i>::Apply(rrArguments...)) {
+			return Placeholder<_i>::Apply(rrArguments...);
 		}
 	};
 
 	template<>
-	struct Bind<0> :
+	struct Placeholder<0> :
 		public Functor
 	{
 		template<typename _Type, typename... _Other>
@@ -436,16 +436,16 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 
 Lambda::Null _0;
-Lambda::Bind<0> _1;
-Lambda::Bind<1> _2;
-Lambda::Bind<2> _3;
-Lambda::Bind<3> _4;
-Lambda::Bind<4> _5;
-Lambda::Bind<5> _6;
-Lambda::Bind<6> _7;
-Lambda::Bind<7> _8;
-Lambda::Bind<8> _9;
-Lambda::Bind<9> _10;
+Lambda::Placeholder<0> _1;
+Lambda::Placeholder<1> _2;
+Lambda::Placeholder<2> _3;
+Lambda::Placeholder<3> _4;
+Lambda::Placeholder<4> _5;
+Lambda::Placeholder<5> _6;
+Lambda::Placeholder<6> _7;
+Lambda::Placeholder<7> _8;
+Lambda::Placeholder<8> _9;
+Lambda::Placeholder<9> _10;
 
 
 #define LAMBDA_PREFIX_UNARY_OPERATOR(Operator, FunctorClass) \
