@@ -6,7 +6,8 @@ Lambda expressions implementation for C++0x and higher, very similar to [Boost L
 This implementation uses the following C++0x features:
 - rvalue references,
 - variadic template arguments,
-- return type inference.
+- return type inference,
+- SFINAE.
 
 Made mainly for fun.
 
