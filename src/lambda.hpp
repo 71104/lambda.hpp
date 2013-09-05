@@ -64,6 +64,14 @@ namespace Lambda {
 	};
 
 
+	struct Null :
+		public Functor
+	{
+		template<typename... _Arguments>
+		inline void operator () (_Arguments&&...) {}
+	};
+
+
 	template<unsigned int _i>
 	struct Bind :
 		public Functor
@@ -361,9 +369,52 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 			return then_<_Then>(move(m_Condition), (_Then&&)rrThen);
 		}
 	};
+
+
+	template<typename _Condition, typename _Body = Null>
+	struct While :
+		public Functor
+	{
+		_Condition m_Condition;
+		_Body m_Body;
+
+		While(_Condition &&a_rrCondition, _Body &&a_rrBody)
+			:
+		m_Condition((_Condition&&)a_rrCondition),
+			m_Body((_Body&&)a_rrBody) {}
+
+		template<typename... _Arguments>
+		inline void operator () (_Arguments&&... Arguments) {
+			while (m_Condition(Arguments...)) {
+				m_Body(Arguments...);
+			}
+		}
+	};
+
+
+	template<typename _Condition, typename _Body = Null>
+	struct DoWhile :
+		public Functor
+	{
+		_Condition m_Condition;
+		_Body m_Body;
+
+		DoWhile(_Condition &&a_rrCondition, _Body &&a_rrBody)
+			:
+		m_Condition((_Condition&&)a_rrCondition),
+			m_Body((_Body&&)a_rrBody) {}
+
+		template<typename... _Arguments>
+		inline void operator () (_Arguments&&... Arguments) {
+			do {
+				m_Body(Arguments...);
+			} while (m_Condition(Arguments...));
+		}
+	};
 }
 
 
+Lambda::Null _0;
 Lambda::Bind<0> _1;
 Lambda::Bind<1> _2;
 Lambda::Bind<2> _3;
@@ -433,20 +484,27 @@ Lambda::Constant<_Type> constant(_Type &&rr) {
 	return Lambda::Constant<_Type>((_Type&&)rr);
 }
 
-
 template<typename _Condition, typename _Then>
 Lambda::IfThen<_Condition, _Then> if_then(_Condition &&rrCondition, _Then &&rrThen) {
 	return Lambda::IfThen<_Condition, _Then>((_Condition&&)rrCondition, (_Then&&)rrThen);
 }
-
 
 template<typename _Condition, typename _Then, typename _Else>
 Lambda::IfThenElse<_Condition, _Then, _Else> if_then_else(_Condition &&rrCondition, _Then &&rrThen, _Else &&rrElse) {
 	return Lambda::IfThenElse<_Condition, _Then, _Else>((_Condition&&)rrCondition, (_Then&&)rrThen, (_Else&&)rrElse);
 }
 
-
 template<typename _Condition>
 Lambda::If<_Condition> if_(_Condition &&rrCondition) {
 	return Lambda::If<_Condition>((_Condition&&)rrCondition);
+}
+
+template<typename _Condition, typename _Body>
+Lambda::While<_Condition, _Body> while_loop(_Condition &&rrCondition, _Body &&rrBody = _0) {
+	return Lambda::While<_Condition, _Body>((_Condition&&)rrCondition, (_Body&&)rrBody);
+}
+
+template<typename _Condition, typename _Body>
+Lambda::DoWhile<_Condition, _Body> do_while_loop(_Condition &&rrCondition, _Body &&rrBody = _0) {
+	return Lambda::DoWhile<_Condition, _Body>((_Condition&&)rrCondition, (_Body&&)rrBody);
 }

@@ -11,7 +11,7 @@ int main() {
 	cout << _2("lel", "lol") << endl;
 
 	int x = 4;
-	(cout << _1 << " " << ++_1 << " " << _1)(x) << " " << x << endl;
+	(cout << constant("must print 5 5 4 5: ") << _1 << " " << ++_1 << " " << _1)(x) << " " << x << endl;
 
 	auto l = if_then_else(_1,
 		cout << constant("true") << endl<char, char_traits<char>>,
