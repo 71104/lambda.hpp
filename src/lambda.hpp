@@ -332,6 +332,27 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 	};
 
 
+	template<typename _Condition, typename _Then, typename _Else>
+	struct IfThenElseReturn :
+		public Functor
+	{
+		_Condition m_Condition;
+		_Then m_Then;
+		_Else m_Else;
+
+		IfThenElseReturn(_Condition &&a_rrCondition, _Then &&a_rrThen, _Else &&a_rrElse)
+			:
+		m_Condition((_Condition&&)a_rrCondition),
+			m_Then((_Then&&)a_rrThen),
+			m_Else((_Else&&)a_rrElse) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... rrArguments) -> decltype(m_Condition(rrArguments...) ? m_Then(rrArguments...) : m_Else(rrArguments...)) {
+			return m_Condition(rrArguments...) ? m_Then(rrArguments...) : m_Else(rrArguments...);
+		}
+	};
+
+
 	template<typename _Condition>
 	struct If :
 		public Functor
@@ -497,6 +518,11 @@ Lambda::IfThen<_Condition, _Then> if_then(_Condition &&rrCondition, _Then &&rrTh
 template<typename _Condition, typename _Then, typename _Else>
 Lambda::IfThenElse<_Condition, _Then, _Else> if_then_else(_Condition &&rrCondition, _Then &&rrThen, _Else &&rrElse) {
 	return Lambda::IfThenElse<_Condition, _Then, _Else>((_Condition&&)rrCondition, (_Then&&)rrThen, (_Else&&)rrElse);
+}
+
+template<typename _Condition, typename _Then, typename _Else>
+Lambda::IfThenElseReturn<_Condition, _Then, _Else> if_then_else_return(_Condition &&rrCondition, _Then &&rrThen, _Else &&rrElse) {
+	return Lambda::IfThenElseReturn<_Condition, _Then, _Else>((_Condition&&)rrCondition, (_Then&&)rrThen, (_Else&&)rrElse);
 }
 
 template<typename _Condition>
