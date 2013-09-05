@@ -270,12 +270,12 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 
 	template<typename _Type>
-	struct Constant :
+	struct Delay :
 		public Functor
 	{
 		_Type m_;
 
-		Constant(_Type &&a_rr)
+		Delay(_Type &&a_rr)
 			:
 		m_((_Type&&)a_rr) {}
 
@@ -480,8 +480,13 @@ LAMBDA_BINARY_OPERATOR(>=, GreaterThanOrEqualTo)
 
 
 template<typename _Type>
-Lambda::Constant<_Type> constant(_Type &&rr) {
-	return Lambda::Constant<_Type>((_Type&&)rr);
+Lambda::Delay<_Type> constant(_Type &&rr) {
+	return Lambda::Delay<_Type>((_Type&&)rr);
+}
+
+template<typename _Type>
+Lambda::Delay<_Type> var(_Type &&rr) {
+	return Lambda::Delay<_Type>((_Type&&)rr);
 }
 
 template<typename _Condition, typename _Then>
