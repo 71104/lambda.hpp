@@ -9,3 +9,10 @@ This implementation uses the following C++0x features:
 - return type inference.
 
 Made mainly for fun.
+
+Advantages compared to Boost Lambda:
+* generated functors can be called with more than 10 arguments (unlimited arguments supported);
+* faster compilation thanks to C++0x features (less overloads to select, less templates to instantiate).
+
+Disadvantages:
+* only works on very recent C++ compilers. Works in g++ 4.8.
