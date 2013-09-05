@@ -77,13 +77,13 @@ namespace Lambda {
 		public Functor
 	{
 		template<typename _First, typename... _Other>
-		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Placeholder<_i - 1>::Apply(rrOther...)) {
-			return Placeholder<_i - 1>::Apply(rrOther...);
+		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Placeholder<_i - 1>::template Apply(rrOther...)) {
+			return Placeholder<_i - 1>::template Apply(rrOther...);
 		}
 
 		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Placeholder<_i>::Apply(rrArguments...)) {
-			return Placeholder<_i>::Apply(rrArguments...);
+		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Placeholder<_i>::template Apply(rrArguments...)) {
+			return Placeholder<_i>::template Apply(rrArguments...);
 		}
 	};
 
@@ -92,13 +92,50 @@ namespace Lambda {
 		public Functor
 	{
 		template<typename _Type, typename... _Other>
-		static inline _Type &&Apply(_Type &&rr, _Other&&...) {
+		static inline _Type Apply(_Type &&rr, _Other&&...) {
 			return rr;
 		}
 
 		template<typename _Type, typename... _Other>
-		inline _Type &&operator () (_Type &&rr, _Other&&...) {
+		inline _Type operator () (_Type &&rr, _Other&&...) {
 			return rr;
+		}
+	};
+
+
+	template<typename _Callable, typename... _BoundArguments>
+	struct Bind;
+
+	template<typename _Callable, typename _FirstBoundArgument, typename... _BoundArguments>
+	struct Bind<_Callable, _FirstBoundArgument, _BoundArguments...> :
+		public Bind<_Callable, _BoundArguments...>
+	{
+		_FirstBoundArgument m_Argument;
+
+		Bind(_Callable &&a_rrCallable, _FirstBoundArgument &&a_rrArgument, _BoundArguments&&... rrNextArguments)
+			:
+		Bind<_Callable, _BoundArguments...>((_Callable&&)a_rrCallable, rrNextArguments...),
+			m_Argument((_FirstBoundArgument&&)a_rrArgument) {}
+
+		template<typename... _UnboundArguments>
+		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, rrArguments...)) {
+			return Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, rrArguments...);
+		}
+	};
+
+	template<typename _Callable>
+	struct Bind<_Callable> :
+		public Functor
+	{
+		_Callable m_Callable;
+
+		Bind(_Callable &&a_rrCallable)
+			:
+		m_Callable((_Callable&&)a_rrCallable) {}
+
+		template<typename... _UnboundArguments>
+		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(m_Callable(rrArguments...)) {
+			return m_Callable(rrArguments...);
 		}
 	};
 

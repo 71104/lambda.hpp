@@ -20,5 +20,10 @@ int main() {
 	l(true);
 	l(false);
 
+	int y = 5;
+	cout << (_1 += 3)(y) << endl;
+	cout << (y += _1)(3) << endl;
+	cout << (var(y) += _1)(3) << endl;
+
 	return 0;
 }
