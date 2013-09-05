@@ -13,5 +13,12 @@ int main() {
 	int x = 4;
 	(cout << _1 << " " << ++_1 << " " << _1)(x) << " " << x << endl;
 
+	auto l = if_then_else(_1,
+		cout << constant("true") << endl<char, char_traits<char>>,
+		cout << constant("false") << endl<char, char_traits<char>>
+		);
+	l(true);
+	l(false);
+
 	return 0;
 }

@@ -260,6 +260,107 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>, GreaterThan)
 LAMBDA_BINARY_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
+
+	template<typename _Type>
+	struct Constant :
+		public Functor
+	{
+		_Type m_;
+
+		Constant(_Type &&a_rr)
+			:
+		m_((_Type&&)a_rr) {}
+
+		template<typename... _Arguments>
+		inline _Type operator () (_Arguments&&...) {
+			return (_Type&&)m_;
+		}
+	};
+
+
+	template<typename _Condition, typename _Then>
+	struct IfThen :
+		public Functor
+	{
+		_Condition m_Condition;
+		_Then m_Then;
+
+		IfThen(_Condition &&a_rrCondition, _Then &&a_rrThen)
+			:
+		m_Condition((_Condition&&)a_rrCondition),
+			m_Then((_Then&&)a_rrThen) {}
+
+		template<typename... _Arguments>
+		inline void operator () (_Arguments&&... rrArguments) {
+			if (m_Condition(rrArguments...)) {
+				m_Then(rrArguments...);
+			}
+		}
+	};
+
+
+	template<typename _Condition, typename _Then, typename _Else>
+	struct IfThenElse :
+		public Functor
+	{
+		_Condition m_Condition;
+		_Then m_Then;
+		_Else m_Else;
+
+		IfThenElse(_Condition &&a_rrCondition, _Then &&a_rrThen, _Else &&a_rrElse)
+			:
+		m_Condition((_Condition&&)a_rrCondition),
+			m_Then((_Then&&)a_rrThen),
+			m_Else((_Else&&)a_rrElse) {}
+
+		template<typename... _Arguments>
+		inline void operator () (_Arguments&&... rrArguments) {
+			if (m_Condition(rrArguments...)) {
+				m_Then(rrArguments...);
+			} else {
+				m_Else(rrArguments...);
+			}
+		}
+	};
+
+
+	template<typename _Condition>
+	struct If :
+		public Functor
+	{
+		_Condition m_Condition;
+
+		If(_Condition &&a_rrCondition)
+			:
+		m_Condition((_Condition&&)a_rrCondition) {}
+
+		template<typename _Then>
+		struct then_ :
+			public Functor
+		{
+			_Condition m_Condition;
+			_Then m_Then;
+
+			then_(_Condition &&a_rrCondition, _Then &&a_rrThen)
+				:
+			m_Condition((_Condition&&)a_rrCondition),
+				m_Then((_Then&&)a_rrThen) {}
+
+			template<typename... _Arguments>
+			inline void operator () (_Arguments&&... rrArguments) {
+				if (m_Condition(rrArguments...)) {
+					m_Then(rrArguments...);
+				}
+			}
+
+			// TODO else
+		};
+
+		template<typename _Then>
+		inline then_<_Then> operator [] (_Then &&rrThen) && {
+			return then_<_Then>(move(m_Condition), (_Then&&)rrThen);
+		}
+	};
 }
 
 
@@ -325,3 +426,27 @@ LAMBDA_BINARY_OPERATOR(<, LessThan)
 LAMBDA_BINARY_OPERATOR(>, GreaterThan)
 LAMBDA_BINARY_OPERATOR(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_OPERATOR(>=, GreaterThanOrEqualTo)
+
+
+template<typename _Type>
+Lambda::Constant<_Type> constant(_Type &&rr) {
+	return Lambda::Constant<_Type>((_Type&&)rr);
+}
+
+
+template<typename _Condition, typename _Then>
+Lambda::IfThen<_Condition, _Then> if_then(_Condition &&rrCondition, _Then &&rrThen) {
+	return Lambda::IfThen<_Condition, _Then>((_Condition&&)rrCondition, (_Then&&)rrThen);
+}
+
+
+template<typename _Condition, typename _Then, typename _Else>
+Lambda::IfThenElse<_Condition, _Then, _Else> if_then_else(_Condition &&rrCondition, _Then &&rrThen, _Else &&rrElse) {
+	return Lambda::IfThenElse<_Condition, _Then, _Else>((_Condition&&)rrCondition, (_Then&&)rrThen, (_Else&&)rrElse);
+}
+
+
+template<typename _Condition>
+Lambda::If<_Condition> if_(_Condition &&rrCondition) {
+	return Lambda::If<_Condition>((_Condition&&)rrCondition);
+}
