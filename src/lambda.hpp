@@ -77,13 +77,13 @@ namespace Lambda {
 		public Functor
 	{
 		template<typename _First, typename... _Other>
-		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Placeholder<_i - 1>::template Apply(rrOther...)) {
-			return Placeholder<_i - 1>::template Apply(rrOther...);
+		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Placeholder<_i - 1>::template Apply((_Other&&)rrOther...)) {
+			return Placeholder<_i - 1>::template Apply((_Other&&)rrOther...);
 		}
 
 		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Placeholder<_i>::template Apply(rrArguments...)) {
-			return Placeholder<_i>::template Apply(rrArguments...);
+		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Placeholder<_i>::template Apply((_Arguments&&)rrArguments...)) {
+			return Placeholder<_i>::template Apply((_Arguments&&)rrArguments...);
 		}
 	};
 
@@ -114,12 +114,12 @@ namespace Lambda {
 
 		Bind(_Callable &&a_rrCallable, _FirstBoundArgument &&a_rrArgument, _BoundArguments&&... rrNextArguments)
 			:
-		Bind<_Callable, _BoundArguments...>((_Callable&&)a_rrCallable, rrNextArguments...),
+		Bind<_Callable, _BoundArguments...>((_Callable&&)a_rrCallable, (_BoundArguments&&)rrNextArguments...),
 			m_Argument((_FirstBoundArgument&&)a_rrArgument) {}
 
 		template<typename... _UnboundArguments>
-		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, rrArguments...)) {
-			return Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, rrArguments...);
+		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, (_BoundArguments&&)rrArguments...)) {
+			return Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, (_BoundArguments&&)rrArguments...);
 		}
 	};
 
@@ -134,8 +134,8 @@ namespace Lambda {
 		m_Callable((_Callable&&)a_rrCallable) {}
 
 		template<typename... _UnboundArguments>
-		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(m_Callable(rrArguments...)) {
-			return m_Callable(rrArguments...);
+		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(m_Callable((_UnboundArguments&&)rrArguments...)) {
+			return m_Callable((_UnboundArguments&&)rrArguments...);
 		}
 	};
 
@@ -152,8 +152,8 @@ namespace Lambda {
 			: \
 		m_Operand((_Operand&&)a_rrOperand) {} \
 		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(Operator(m_Operand(Arguments...))) { \
-			return Operator(m_Operand(Arguments...)); \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(Operator(m_Operand((_Arguments&&)Arguments...))) { \
+			return Operator(m_Operand((_Arguments&&)Arguments...)); \
 		} \
 	}; \
 	template<typename _Operand> \
@@ -182,8 +182,8 @@ namespace Lambda {
 			: \
 		m_Operand((_Operand&&)a_rrOperand) {} \
 		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype((m_Operand(Arguments...)) Operator) { \
-			return (m_Operand(Arguments...)) Operator; \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype((m_Operand((_Arguments&&)Arguments...)) Operator) { \
+			return (m_Operand((_Arguments&&)Arguments...)) Operator; \
 		} \
 	}; \
 	template<typename _Operand> \
@@ -225,8 +225,8 @@ LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 		m_Left((_Left&&)a_rrLeft), \
 			m_Right((_Right&&)a_rrRight) {} \
 		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left(Arguments...) Operator m_Right(Arguments...)) { \
-			return m_Left(Arguments...) Operator m_Right(Arguments...); \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...)) { \
+			return m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -240,8 +240,8 @@ LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 		m_Left((_Left&&)a_rrLeft), \
 			m_Right((_Right&&)a_rrRight) {} \
 		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left Operator m_Right(Arguments...)) { \
-			return m_Left Operator m_Right(Arguments...); \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left Operator m_Right((_Arguments&&)Arguments...)) { \
+			return m_Left Operator m_Right((_Arguments&&)Arguments...); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -255,8 +255,8 @@ LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 		m_Left((_Left&&)a_rrLeft), \
 			m_Right((_Right&&)a_rrRight) {} \
 		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left(Arguments...) Operator m_Right) { \
-			return m_Left(Arguments...) Operator m_Right; \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right) { \
+			return m_Left((_Arguments&&)Arguments...) Operator m_Right; \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -337,8 +337,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 		template<typename... _Arguments>
 		inline void operator () (_Arguments&&... rrArguments) {
-			if (m_Condition(rrArguments...)) {
-				m_Then(rrArguments...);
+			if (m_Condition((_Arguments&&)rrArguments...)) {
+				m_Then((_Arguments&&)rrArguments...);
 			}
 		}
 	};
@@ -360,10 +360,10 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 		template<typename... _Arguments>
 		inline void operator () (_Arguments&&... rrArguments) {
-			if (m_Condition(rrArguments...)) {
-				m_Then(rrArguments...);
+			if (m_Condition((_Arguments&&)rrArguments...)) {
+				m_Then((_Arguments&&)rrArguments...);
 			} else {
-				m_Else(rrArguments...);
+				m_Else((_Arguments&&)rrArguments...);
 			}
 		}
 	};
@@ -384,8 +384,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 			m_Else((_Else&&)a_rrElse) {}
 
 		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... rrArguments) -> decltype(m_Condition(rrArguments...) ? m_Then(rrArguments...) : m_Else(rrArguments...)) {
-			return m_Condition(rrArguments...) ? m_Then(rrArguments...) : m_Else(rrArguments...);
+		inline auto operator () (_Arguments&&... rrArguments) -> decltype(m_Condition((_Arguments&&)rrArguments...) ? m_Then((_Arguments&&)rrArguments...) : m_Else((_Arguments&&)rrArguments...)) {
+			return m_Condition((_Arguments&&)rrArguments...) ? m_Then((_Arguments&&)rrArguments...) : m_Else((_Arguments&&)rrArguments...);
 		}
 	};
 
@@ -414,8 +414,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 			template<typename... _Arguments>
 			inline void operator () (_Arguments&&... rrArguments) {
-				if (m_Condition(rrArguments...)) {
-					m_Then(rrArguments...);
+				if (m_Condition((_Arguments&&)rrArguments...)) {
+					m_Then((_Arguments&&)rrArguments...);
 				}
 			}
 
@@ -443,8 +443,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 		template<typename... _Arguments>
 		inline void operator () (_Arguments&&... Arguments) {
-			while (m_Condition(Arguments...)) {
-				m_Body(Arguments...);
+			while (m_Condition((_Arguments&&)Arguments...)) {
+				m_Body((_Arguments&&)Arguments...);
 			}
 		}
 	};
@@ -465,8 +465,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 		template<typename... _Arguments>
 		inline void operator () (_Arguments&&... Arguments) {
 			do {
-				m_Body(Arguments...);
-			} while (m_Condition(Arguments...));
+				m_Body((_Arguments&&)Arguments...);
+			} while (m_Condition((_Arguments&&)Arguments...));
 		}
 	};
 }
