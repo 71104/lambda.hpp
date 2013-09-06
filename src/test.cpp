@@ -26,8 +26,8 @@ int main() {
 	cout << (y += _1)(3) << endl;
 	cout << (var(y) += _1)(3) << endl;
 
-	int z = 1;
-	cout << "must print 3: " << (var(z) = 2, _1 + z)(z) << endl;
+	//int z = 1;
+	//cout << "must print 3: " << (var(z) = 2, _1 + z)(z) << endl;
 
 	//struct {
 	//	void operator () (int x, int y) {

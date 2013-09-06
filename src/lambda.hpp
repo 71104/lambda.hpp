@@ -157,13 +157,13 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...)) { \
 			return m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Left, _Right, false, false>&, _RightType> operator = (_RightType &&rrRight) { \
-			return Assignment<Name<_Left, _Right, false, false>&, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Left, _Right, false, false>&, _Other> operator = (_Other &&rrOther) { \
+			return Assignment<Name<_Left, _Right, false, false>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Left, _Right, false, false>, _RightType> operator = (_RightType &&rrRight) && { \
-			return Assignment<Name<_Left, _Right, false, false>, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Left, _Right, false, false>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Left, _Right, false, false>, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -180,13 +180,13 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left Operator m_Right((_Arguments&&)Arguments...)) { \
 			return m_Left Operator m_Right((_Arguments&&)Arguments...); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Left, _Right, true, false>&, _RightType> operator = (_RightType &&rrRight) { \
-			return Assignment<Name<_Left, _Right, true, false>&, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Left, _Right, true, false>&, _Other> operator = (_Other &&rrOther) { \
+			return Assignment<Name<_Left, _Right, true, false>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Left, _Right, true, false>, _RightType> operator = (_RightType &&rrRight) && { \
-			return Assignment<Name<_Left, _Right, true, false>, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Left, _Right, true, false>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Left, _Right, true, false>, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -203,13 +203,13 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right) { \
 			return m_Left((_Arguments&&)Arguments...) Operator m_Right; \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Left, _Right, false, true>&, _RightType> operator = (_RightType &&rrRight) { \
-			return Assignment<Name<_Left, _Right, false, true>&, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Left, _Right, false, true>&, _Other> operator = (_Other &&rrOther) { \
+			return Assignment<Name<_Left, _Right, false, true>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Left, _Right, false, true>, _RightType> operator = (_RightType &&rrRight) && { \
-			return Assignment<Name<_Left, _Right, false, true>, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Left, _Right, false, true>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Left, _Right, false, true>, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -226,13 +226,13 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&...) -> decltype(m_Left Operator m_Right) { \
 			return m_Left Operator m_Right; \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Left, _Right, true, true>&, _RightType> operator = (_RightType &&rrRight) { \
-			return Assignment<Name<_Left, _Right, true, true>&, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Left, _Right, true, true>&, _Other> operator = (_Other &&rrOther) { \
+			return Assignment<Name<_Left, _Right, true, true>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Left, _Right, true, true>, _RightType> operator = (_RightType &&rrRight) && { \
-			return Assignment<Name<_Left, _Right, true, true>, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Left, _Right, true, true>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Left, _Right, true, true>, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	};
 
@@ -255,13 +255,13 @@ LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(Operator(m_Operand((_Arguments&&)Arguments...))) { \
 			return Operator(m_Operand((_Arguments&&)Arguments...)); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Operand, false>&, _RightType> operator = (_RightType &&rrRight) { \
-			return Assignment<Name<_Operand, false>&, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, false>&, _Other> operator = (_Other &&rrOther) { \
+			return Assignment<Name<_Operand, false>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Operand, false>, _RightType> operator = (_RightType &&rrRight) && { \
-			return Assignment<Name<_Operand, false>, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, false>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Operand, false>, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Operand> \
@@ -276,13 +276,13 @@ LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 		inline auto operator () (_Arguments&&...) -> decltype(Operator m_Operand) { \
 			return Operator m_Operand; \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Operand, true>&, _RightType> operator = (_RightType &&rrRight) { \
-			return Assignment<Name<_Operand, true>&, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, true>&, _Other> operator = (_Other &&rrOther) { \
+			return Assignment<Name<_Operand, true>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Operand, true>, _RightType> operator = (_RightType &&rrRight) && { \
-			return Assignment<Name<_Operand, true>, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, true>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Operand, true>, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	};
 
@@ -301,13 +301,13 @@ LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 		inline auto operator () (_Arguments&&... Arguments) -> decltype((m_Operand((_Arguments&&)Arguments...)) Operator) { \
 			return (m_Operand((_Arguments&&)Arguments...)) Operator; \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Operand, false>&, _RightType> operator = (_RightType &&rrRight) { \
-			return Assignment<Name<_Operand, false>&, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, false>&, _Other> operator = (_Other &&rrOther) { \
+			return Assignment<Name<_Operand, false>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Operand, false>, _RightType> operator = (_RightType &&rrRight) && { \
-			return Assignment<Name<_Operand, false>, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, false>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Operand, false>, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Operand> \
@@ -322,13 +322,13 @@ LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 		inline auto operator () (_Arguments&&...) -> decltype(m_Operand Operator) { \
 			return m_Operand Operator; \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Operand, true>&, _RightType> operator = (_RightType &&rrRight) { \
-			return Assignment<Name<_Operand, true>&, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, true>&, _Other> operator = (_Other &&rrOther) { \
+			return Assignment<Name<_Operand, true>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
-		template<typename _RightType> \
-		inline Assignment<Name<_Operand, true>, _RightType> operator = (_RightType &&rrRight) && { \
-			return Assignment<Name<_Operand, true>, _RightType>(*this, (_RightType&&)rrRight); \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, true>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Operand, true>, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	};
 
