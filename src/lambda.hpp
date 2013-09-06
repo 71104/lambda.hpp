@@ -586,9 +586,9 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 			m_Body((_Body&&)a_rrBody) {}
 
 		template<typename... _Arguments>
-		inline void operator () (_Arguments&&... Arguments) {
-			while (m_Condition((_Arguments&&)Arguments...)) {
-				m_Body((_Arguments&&)Arguments...);
+		inline void operator () (_Arguments&&... rrArguments) {
+			while (m_Condition((_Arguments&&)rrArguments...)) {
+				m_Body((_Arguments&&)rrArguments...);
 			}
 		}
 	};
@@ -607,10 +607,35 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 			m_Body((_Body&&)a_rrBody) {}
 
 		template<typename... _Arguments>
-		inline void operator () (_Arguments&&... Arguments) {
+		inline void operator () (_Arguments&&... rrArguments) {
 			do {
-				m_Body((_Arguments&&)Arguments...);
-			} while (m_Condition((_Arguments&&)Arguments...));
+				m_Body((_Arguments&&)rrArguments...);
+			} while (m_Condition((_Arguments&&)rrArguments...));
+		}
+	};
+
+
+	template<typename _Initialization, typename _Condition, typename _Increment, typename _Body = Null>
+	struct For :
+		public Functor
+	{
+		_Initialization m_Initialization;
+		_Condition m_Condition;
+		_Increment m_Increment;
+		_Body m_Body;
+
+		For(_Initialization &&a_rrInitialization, _Condition &&a_rrCondition, _Increment &&a_rrIncrement, _Body &&a_rrBody)
+			:
+		m_Initialization((_Initizalization&&)a_rrInitialization),
+			m_Condition((_Condition&&)a_rrCondition),
+			m_Increment((_Increment&&)a_rrIncrement),
+			m_Body((_Body&&)a_rrBody) {}
+
+		template<typename... _Arguments>
+		inline void operator () (_Arguments&&... rrArguments) {
+			for (m_Initialization((_Arguments&&)rrArguments...); m_Condition((_Arguments&&)rrArguments...); m_Increment((_Arguments&&)rrArguments...)) {
+				m_Body((_Arguments&&)rrArguments...);
+			}
 		}
 	};
 }
@@ -730,4 +755,9 @@ Lambda::While<_Condition, _Body> while_loop(_Condition &&rrCondition, _Body &&rr
 template<typename _Condition, typename _Body>
 Lambda::DoWhile<_Condition, _Body> do_while_loop(_Condition &&rrCondition, _Body &&rrBody = _0) {
 	return Lambda::DoWhile<_Condition, _Body>((_Condition&&)rrCondition, (_Body&&)rrBody);
+}
+
+template<typename _Initialization, typename _Condition, typename _Increment, typename _Body>
+Lambda::For<_Initialization, _Condition, _Increment, _Body> for_loop(_Initialization &&rrInitialization, _Condition &&rrCondition, _Increment &&rrIncrement, _Body &&rrBody = _0) {
+	return Lambda::For<_Initialization, _Condition, _Increment, _Body>((_Initialization&&)rrInitialization, (_Condition&&)rrCondition, (_Increment&&)rrIncrement, (_Body&&)rrBody);
 }
