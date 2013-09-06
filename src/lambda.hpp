@@ -306,6 +306,86 @@ LAMBDA_BINARY_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 
+	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f>
+	struct Comma;
+
+
+	template<typename _Left, typename _Right>
+	struct Comma<_Left, _Right, false, false> :
+		public Functor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Comma(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...), m_Right((_Arguments&&)Arguments...)) {
+			return m_Left((_Arguments&&)Arguments...), m_Right((_Arguments&&)Arguments...);
+		}
+	};
+
+
+	template<typename _Left, typename _Right>
+	struct Comma<_Left, _Right, true, false> :
+		public Functor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Comma(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left, m_Right((_Arguments&&)Arguments...)) {
+			return m_Left, m_Right((_Arguments&&)Arguments...);
+		}
+	};
+
+
+	template<typename _Left, typename _Right>
+	struct Comma<_Left, _Right, false, true> :
+		public Functor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Comma(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...), m_Right) {
+			return m_Left((_Arguments&&)Arguments...), m_Right;
+		}
+	};
+
+
+	template<typename _Left, typename _Right>
+	struct Comma<_Left, _Right, true, true> :
+		public Functor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Comma(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&...) -> decltype(m_Left, m_Right) {
+			return m_Left, m_Right;
+		}
+	};
+
+
 	template<typename _Type>
 	struct Delay :
 		public Functor
@@ -537,6 +617,12 @@ LAMBDA_BINARY_OPERATOR(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_OPERATOR(>=, GreaterThanOrEqualTo)
 
 
+template<typename _Left, typename _Right, typename _Traits = Lambda::FunctorTraits2<_Left, _Right>> \
+inline Lambda::Comma<_Left, _Right> operator , (_Left &&rrLeft, _Right &&rrRight) { \
+	return _Traits::template Build<Lambda::Comma<_Left, _Right>>((_Left&&)rrLeft, (_Right&&)rrRight); \
+}
+
+
 template<typename _Type>
 Lambda::Delay<_Type> constant(_Type &&rr) {
 	return Lambda::Delay<_Type>((_Type&&)rr);
@@ -545,6 +631,11 @@ Lambda::Delay<_Type> constant(_Type &&rr) {
 template<typename _Type>
 Lambda::Delay<_Type> var(_Type &&rr) {
 	return Lambda::Delay<_Type>((_Type&&)rr);
+}
+
+template<typename _Callable, typename... _BoundArguments>
+Lambda::Bind<_Callable, _BoundArguments...> bind(_Callable &&rrCallable, _BoundArguments&&... rrBoundArguments) {
+	return Lambda::Bind<_Callable, _BoundArguments...>((_Callable&&)rrCallable, (_BoundArguments&&)rrBoundArguments...);
 }
 
 template<typename _Condition, typename _Then>
