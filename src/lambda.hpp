@@ -140,6 +140,106 @@ namespace Lambda {
 	};
 
 
+#define LAMBDA_BINARY_FUNCTOR_CLASS(Operator, Name) \
+	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f> \
+	struct Name; \
+	template<typename _Left, typename _Right> \
+	struct Name<_Left, _Right, false, false> : \
+		public Functor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...)) { \
+			return m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Left, _Right, false, false>&, _RightType> operator = (_RightType &&rrRight) { \
+			return Assignment<Name<_Left, _Right, false, false>&, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Left, _Right, false, false>, _RightType> operator = (_RightType &&rrRight) && { \
+			return Assignment<Name<_Left, _Right, false, false>, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+	}; \
+	template<typename _Left, typename _Right> \
+	struct Name<_Left, _Right, true, false> : \
+		public Functor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left Operator m_Right((_Arguments&&)Arguments...)) { \
+			return m_Left Operator m_Right((_Arguments&&)Arguments...); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Left, _Right, true, false>&, _RightType> operator = (_RightType &&rrRight) { \
+			return Assignment<Name<_Left, _Right, true, false>&, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Left, _Right, true, false>, _RightType> operator = (_RightType &&rrRight) && { \
+			return Assignment<Name<_Left, _Right, true, false>, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+	}; \
+	template<typename _Left, typename _Right> \
+	struct Name<_Left, _Right, false, true> : \
+		public Functor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right) { \
+			return m_Left((_Arguments&&)Arguments...) Operator m_Right; \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Left, _Right, false, true>&, _RightType> operator = (_RightType &&rrRight) { \
+			return Assignment<Name<_Left, _Right, false, true>&, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Left, _Right, false, true>, _RightType> operator = (_RightType &&rrRight) && { \
+			return Assignment<Name<_Left, _Right, false, true>, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+	}; \
+	template<typename _Left, typename _Right> \
+	struct Name<_Left, _Right, true, true> : \
+		public Functor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&...) -> decltype(m_Left Operator m_Right) { \
+			return m_Left Operator m_Right; \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Left, _Right, true, true>&, _RightType> operator = (_RightType &&rrRight) { \
+			return Assignment<Name<_Left, _Right, true, true>&, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Left, _Right, true, true>, _RightType> operator = (_RightType &&rrRight) && { \
+			return Assignment<Name<_Left, _Right, true, true>, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+	};
+
+
+LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
+
+
 #define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
 	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
 	struct Name; \
@@ -155,6 +255,14 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(Operator(m_Operand((_Arguments&&)Arguments...))) { \
 			return Operator(m_Operand((_Arguments&&)Arguments...)); \
 		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Operand, false>&, _RightType> operator = (_RightType &&rrRight) { \
+			return Assignment<Name<_Operand, false>&, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Operand, false>, _RightType> operator = (_RightType &&rrRight) && { \
+			return Assignment<Name<_Operand, false>, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
 	}; \
 	template<typename _Operand> \
 	struct Name<_Operand, true> : \
@@ -167,6 +275,14 @@ namespace Lambda {
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&...) -> decltype(Operator m_Operand) { \
 			return Operator m_Operand; \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Operand, true>&, _RightType> operator = (_RightType &&rrRight) { \
+			return Assignment<Name<_Operand, true>&, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Operand, true>, _RightType> operator = (_RightType &&rrRight) && { \
+			return Assignment<Name<_Operand, true>, _RightType>(*this, (_RightType&&)rrRight); \
 		} \
 	};
 
@@ -185,6 +301,14 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&... Arguments) -> decltype((m_Operand((_Arguments&&)Arguments...)) Operator) { \
 			return (m_Operand((_Arguments&&)Arguments...)) Operator; \
 		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Operand, false>&, _RightType> operator = (_RightType &&rrRight) { \
+			return Assignment<Name<_Operand, false>&, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Operand, false>, _RightType> operator = (_RightType &&rrRight) && { \
+			return Assignment<Name<_Operand, false>, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
 	}; \
 	template<typename _Operand> \
 	struct Name<_Operand, true> : \
@@ -198,7 +322,16 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&...) -> decltype(m_Operand Operator) { \
 			return m_Operand Operator; \
 		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Operand, true>&, _RightType> operator = (_RightType &&rrRight) { \
+			return Assignment<Name<_Operand, true>&, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
+		template<typename _RightType> \
+		inline Assignment<Name<_Operand, true>, _RightType> operator = (_RightType &&rrRight) && { \
+			return Assignment<Name<_Operand, true>, _RightType>(*this, (_RightType&&)rrRight); \
+		} \
 	};
+
 
 LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(*, Indirection)
 LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(+, UnaryPlus)
@@ -210,70 +343,6 @@ LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(--, PreDecrement)
 LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(++, PostIncrement)
 LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 
-
-#define LAMBDA_BINARY_FUNCTOR_CLASS(Operator, Name) \
-	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f> \
-	struct Name; \
-	template<typename _Left, typename _Right> \
-	struct Name<_Left, _Right, false, false> : \
-		public Functor \
-	{ \
-		_Left m_Left; \
-		_Right m_Right; \
-		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
-			: \
-		m_Left((_Left&&)a_rrLeft), \
-			m_Right((_Right&&)a_rrRight) {} \
-		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...)) { \
-			return m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...); \
-		} \
-	}; \
-	template<typename _Left, typename _Right> \
-	struct Name<_Left, _Right, true, false> : \
-		public Functor \
-	{ \
-		_Left m_Left; \
-		_Right m_Right; \
-		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
-			: \
-		m_Left((_Left&&)a_rrLeft), \
-			m_Right((_Right&&)a_rrRight) {} \
-		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left Operator m_Right((_Arguments&&)Arguments...)) { \
-			return m_Left Operator m_Right((_Arguments&&)Arguments...); \
-		} \
-	}; \
-	template<typename _Left, typename _Right> \
-	struct Name<_Left, _Right, false, true> : \
-		public Functor \
-	{ \
-		_Left m_Left; \
-		_Right m_Right; \
-		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
-			: \
-		m_Left((_Left&&)a_rrLeft), \
-			m_Right((_Right&&)a_rrRight) {} \
-		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right) { \
-			return m_Left((_Arguments&&)Arguments...) Operator m_Right; \
-		} \
-	}; \
-	template<typename _Left, typename _Right> \
-	struct Name<_Left, _Right, true, true> : \
-		public Functor \
-	{ \
-		_Left m_Left; \
-		_Right m_Right; \
-		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
-			: \
-		m_Left((_Left&&)a_rrLeft), \
-			m_Right((_Right&&)a_rrRight) {} \
-		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&...) -> decltype(m_Left Operator m_Right) { \
-			return m_Left Operator m_Right; \
-		} \
-	};
 
 LAMBDA_BINARY_FUNCTOR_CLASS(+, BinaryPlus)
 LAMBDA_BINARY_FUNCTOR_CLASS(+=, CompoundPlus)
@@ -297,7 +366,6 @@ LAMBDA_BINARY_FUNCTOR_CLASS(<<, LeftShift)
 LAMBDA_BINARY_FUNCTOR_CLASS(<<=, CompoundLeftShift)
 LAMBDA_BINARY_FUNCTOR_CLASS(>>, RightShift)
 LAMBDA_BINARY_FUNCTOR_CLASS(>>=, CompoundRightShift)
-LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 LAMBDA_BINARY_FUNCTOR_CLASS(==, Equals)
 LAMBDA_BINARY_FUNCTOR_CLASS(!=, NotEqual)
 LAMBDA_BINARY_FUNCTOR_CLASS(<, LessThan)
@@ -308,7 +376,6 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f>
 	struct Comma;
-
 
 	template<typename _Left, typename _Right>
 	struct Comma<_Left, _Right, false, false> :
@@ -328,7 +395,6 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 		}
 	};
 
-
 	template<typename _Left, typename _Right>
 	struct Comma<_Left, _Right, true, false> :
 		public Functor
@@ -347,7 +413,6 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 		}
 	};
 
-
 	template<typename _Left, typename _Right>
 	struct Comma<_Left, _Right, false, true> :
 		public Functor
@@ -365,7 +430,6 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 			return m_Left((_Arguments&&)Arguments...), m_Right;
 		}
 	};
-
 
 	template<typename _Left, typename _Right>
 	struct Comma<_Left, _Right, true, true> :
