@@ -140,6 +140,122 @@ namespace Lambda {
 	};
 
 
+	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f>
+	struct Assignment;
+
+	template<typename _Left, typename _Right>
+	struct Assignment<_Left, _Right, false, false> :
+		public Functor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Assignment(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) = m_Right((_Arguments&&)Arguments...)) {
+			return m_Left((_Arguments&&)Arguments...) = m_Right((_Arguments&&)Arguments...);
+		}
+
+		template<typename _Other>
+		inline Assignment<Assignment<_Left, _Right, false, false>&, _Other> operator = (_Other &&rrOther) {
+			return Assignment<Assignment<_Left, _Right, false, false>&, _Other>(*this, (_Other&&)rrOther);
+		}
+
+		template<typename _Other>
+		inline Assignment<Assignment<_Left, _Right, false, false>, _Other> operator = (_Other &&rrOther) && {
+			return Assignment<Assignment<_Left, _Right, false, false>, _Other>((Assignment<_Left, _Right, false, false>&&)*this, (_Other&&)rrOther);
+		}
+	};
+
+	template<typename _Left, typename _Right>
+	struct Assignment<_Left, _Right, true, false> :
+		public Functor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Assignment(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left = m_Right((_Arguments&&)Arguments...)) {
+			return m_Left = m_Right((_Arguments&&)Arguments...);
+		}
+
+		template<typename _Other>
+		inline Assignment<Assignment<_Left, _Right, true, false>&, _Other> operator = (_Other &&rrOther) {
+			return Assignment<Assignment<_Left, _Right, true, false>&, _Other>(*this, (_Other&&)rrOther);
+		}
+
+		template<typename _Other>
+		inline Assignment<Assignment<_Left, _Right, true, false>, _Other> operator = (_Other &&rrOther) && {
+			return Assignment<Assignment<_Left, _Right, true, false>, _Other>((Assignment<_Left, _Right, true, false>&&)*this, (_Other&&)rrOther);
+		}
+	};
+
+	template<typename _Left, typename _Right>
+	struct Assignment<_Left, _Right, false, true> :
+		public Functor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Assignment(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) = m_Right) {
+			return m_Left((_Arguments&&)Arguments...) = m_Right;
+		}
+
+		template<typename _Other>
+		inline Assignment<Assignment<_Left, _Right, false, true>&, _Other> operator = (_Other &&rrOther) {
+			return Assignment<Assignment<_Left, _Right, false, true>&, _Other>(*this, (_Other&&)rrOther);
+		}
+
+		template<typename _Other>
+		inline Assignment<Assignment<_Left, _Right, false, true>, _Other> operator = (_Other &&rrOther) && {
+			return Assignment<Assignment<_Left, _Right, false, true>, _Other>((Assignment<_Left, _Right, false, true>&&)*this, (_Other&&)rrOther);
+		}
+	};
+
+	template<typename _Left, typename _Right>
+	struct Assignment<_Left, _Right, true, true> :
+		public Functor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Assignment(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&...) -> decltype(m_Left = m_Right) {
+			return m_Left = m_Right;
+		}
+
+		template<typename _Other>
+		inline Assignment<Assignment<_Left, _Right, true, true>&, _Other> operator = (_Other &&rrOther) {
+			return Assignment<Assignment<_Left, _Right, true, true>&, _Other>(*this, (_Other&&)rrOther);
+		}
+
+		template<typename _Other>
+		inline Assignment<Assignment<_Left, _Right, true, true>, _Other> operator = (_Other &&rrOther) && {
+			return Assignment<Assignment<_Left, _Right, true, true>, _Other>((Assignment<_Left, _Right, true, true>&&)*this, (_Other&&)rrOther);
+		}
+	};
+
+
 #define LAMBDA_BINARY_FUNCTOR_CLASS(Operator, Name) \
 	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f> \
 	struct Name; \
@@ -163,7 +279,7 @@ namespace Lambda {
 		} \
 		template<typename _Other> \
 		inline Assignment<Name<_Left, _Right, false, false>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Left, _Right, false, false>, _Other>(*this, (_Other&&)rrOther); \
+			return Assignment<Name<_Left, _Right, false, false>, _Other>((Name<_Left, _Right, false, false>&&)*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -186,7 +302,7 @@ namespace Lambda {
 		} \
 		template<typename _Other> \
 		inline Assignment<Name<_Left, _Right, true, false>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Left, _Right, true, false>, _Other>(*this, (_Other&&)rrOther); \
+			return Assignment<Name<_Left, _Right, true, false>, _Other>((Name<_Left, _Right, true, false>&&)*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -209,7 +325,7 @@ namespace Lambda {
 		} \
 		template<typename _Other> \
 		inline Assignment<Name<_Left, _Right, false, true>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Left, _Right, false, true>, _Other>(*this, (_Other&&)rrOther); \
+			return Assignment<Name<_Left, _Right, false, true>, _Other>((Name<_Left, _Right, false, true>&&)*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -232,12 +348,9 @@ namespace Lambda {
 		} \
 		template<typename _Other> \
 		inline Assignment<Name<_Left, _Right, true, true>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Left, _Right, true, true>, _Other>(*this, (_Other&&)rrOther); \
+			return Assignment<Name<_Left, _Right, true, true>, _Other>((Name<_Left, _Right, true, true>&&)*this, (_Other&&)rrOther); \
 		} \
 	};
-
-
-LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 
 
 #define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
@@ -256,12 +369,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 			return Operator(m_Operand((_Arguments&&)Arguments...)); \
 		} \
 		template<typename _Other> \
-		inline Assignment<Name<_Operand, false>&, _Other> operator = (_Other &&rrOther) { \
-			return Assignment<Name<_Operand, false>&, _Other>(*this, (_Other&&)rrOther); \
-		} \
-		template<typename _Other> \
 		inline Assignment<Name<_Operand, false>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Operand, false>, _Other>(*this, (_Other&&)rrOther); \
+			return Assignment<Name<_Operand, false>, _Other>((Name<_Operand, false>&&)*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Operand> \
@@ -277,12 +386,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 			return Operator m_Operand; \
 		} \
 		template<typename _Other> \
-		inline Assignment<Name<_Operand, true>&, _Other> operator = (_Other &&rrOther) { \
-			return Assignment<Name<_Operand, true>&, _Other>(*this, (_Other&&)rrOther); \
-		} \
-		template<typename _Other> \
 		inline Assignment<Name<_Operand, true>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Operand, true>, _Other>(*this, (_Other&&)rrOther); \
+			return Assignment<Name<_Operand, true>, _Other>((Name<_Operand, true>&&)*this, (_Other&&)rrOther); \
 		} \
 	};
 
@@ -302,12 +407,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 			return (m_Operand((_Arguments&&)Arguments...)) Operator; \
 		} \
 		template<typename _Other> \
-		inline Assignment<Name<_Operand, false>&, _Other> operator = (_Other &&rrOther) { \
-			return Assignment<Name<_Operand, false>&, _Other>(*this, (_Other&&)rrOther); \
-		} \
-		template<typename _Other> \
 		inline Assignment<Name<_Operand, false>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Operand, false>, _Other>(*this, (_Other&&)rrOther); \
+			return Assignment<Name<_Operand, false>, _Other>((Name<_Operand, false>&&)*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Operand> \
@@ -323,12 +424,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(=, Assignment)
 			return m_Operand Operator; \
 		} \
 		template<typename _Other> \
-		inline Assignment<Name<_Operand, true>&, _Other> operator = (_Other &&rrOther) { \
-			return Assignment<Name<_Operand, true>&, _Other>(*this, (_Other&&)rrOther); \
-		} \
-		template<typename _Other> \
 		inline Assignment<Name<_Operand, true>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Operand, true>, _Other>(*this, (_Other&&)rrOther); \
+			return Assignment<Name<_Operand, true>, _Other>((Name<_Operand, true>&&)*this, (_Other&&)rrOther); \
 		} \
 	};
 
@@ -373,81 +470,8 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>, GreaterThan)
 LAMBDA_BINARY_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
-
-	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f>
-	struct Comma;
-
-	template<typename _Left, typename _Right>
-	struct Comma<_Left, _Right, false, false> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		Comma(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left((_Left&&)a_rrLeft),
-			m_Right((_Right&&)a_rrRight) {}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...), m_Right((_Arguments&&)Arguments...)) {
-			return m_Left((_Arguments&&)Arguments...), m_Right((_Arguments&&)Arguments...);
-		}
-	};
-
-	template<typename _Left, typename _Right>
-	struct Comma<_Left, _Right, true, false> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		Comma(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left((_Left&&)a_rrLeft),
-			m_Right((_Right&&)a_rrRight) {}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left, m_Right((_Arguments&&)Arguments...)) {
-			return m_Left, m_Right((_Arguments&&)Arguments...);
-		}
-	};
-
-	template<typename _Left, typename _Right>
-	struct Comma<_Left, _Right, false, true> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		Comma(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left((_Left&&)a_rrLeft),
-			m_Right((_Right&&)a_rrRight) {}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...), m_Right) {
-			return m_Left((_Arguments&&)Arguments...), m_Right;
-		}
-	};
-
-	template<typename _Left, typename _Right>
-	struct Comma<_Left, _Right, true, true> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		Comma(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left((_Left&&)a_rrLeft),
-			m_Right((_Right&&)a_rrRight) {}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&...) -> decltype(m_Left, m_Right) {
-			return m_Left, m_Right;
-		}
-	};
+#define LAMBDA_COMMA ,
+LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
 
 
 	template<typename _Type>
@@ -626,7 +650,7 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 		For(_Initialization &&a_rrInitialization, _Condition &&a_rrCondition, _Increment &&a_rrIncrement, _Body &&a_rrBody)
 			:
-		m_Initialization((_Initizalization&&)a_rrInitialization),
+		m_Initialization((_Initialization&&)a_rrInitialization),
 			m_Condition((_Condition&&)a_rrCondition),
 			m_Increment((_Increment&&)a_rrIncrement),
 			m_Body((_Body&&)a_rrBody) {}
@@ -697,7 +721,6 @@ LAMBDA_BINARY_OPERATOR(<<, LeftShift)
 LAMBDA_BINARY_OPERATOR(<<=, CompoundLeftShift)
 LAMBDA_BINARY_OPERATOR(>>, RightShift)
 LAMBDA_BINARY_OPERATOR(>>=, CompoundRightShift)
-//LAMBDA_BINARY_OPERATOR(=, Assignment)
 LAMBDA_BINARY_OPERATOR(==, Equals)
 LAMBDA_BINARY_OPERATOR(!=, NotEqual)
 LAMBDA_BINARY_OPERATOR(<, LessThan)
