@@ -256,6 +256,83 @@ namespace Lambda {
 	};
 
 
+#define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
+	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
+	struct Name; \
+	template<typename _Operand> \
+	struct Name<_Operand, false> : \
+		public Functor \
+	{ \
+		_Operand m_Operand; \
+		Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand((_Operand&&)a_rrOperand) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype(Operator(m_Operand((_Arguments&&)Arguments...))) { \
+			return Operator(m_Operand((_Arguments&&)Arguments...)); \
+		} \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, false>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Operand, false>, _Other>((Name<_Operand, false>&&)*this, (_Other&&)rrOther); \
+		} \
+	}; \
+	template<typename _Operand> \
+	struct Name<_Operand, true> : \
+		public Functor \
+	{ \
+		_Operand m_Operand; \
+		Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand((_Operand&&)a_rrOperand) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&...) -> decltype(Operator m_Operand) { \
+			return Operator m_Operand; \
+		} \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, true>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Operand, true>, _Other>((Name<_Operand, true>&&)*this, (_Other&&)rrOther); \
+		} \
+	};
+
+#define LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
+	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
+	struct Name; \
+	template<typename _Operand> \
+	struct Name<_Operand, false> : \
+		public Functor \
+	{ \
+		_Operand m_Operand; \
+		Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand((_Operand&&)a_rrOperand) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&... Arguments) -> decltype((m_Operand((_Arguments&&)Arguments...)) Operator) { \
+			return (m_Operand((_Arguments&&)Arguments...)) Operator; \
+		} \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, false>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Operand, false>, _Other>((Name<_Operand, false>&&)*this, (_Other&&)rrOther); \
+		} \
+	}; \
+	template<typename _Operand> \
+	struct Name<_Operand, true> : \
+		public Functor \
+	{ \
+		_Operand m_Operand; \
+		Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand((_Operand&&)a_rrOperand) {} \
+		template<typename... _Arguments> \
+		inline auto operator () (_Arguments&&...) -> decltype(m_Operand Operator) { \
+			return m_Operand Operator; \
+		} \
+		template<typename _Other> \
+		inline Assignment<Name<_Operand, true>, _Other> operator = (_Other &&rrOther) && { \
+			return Assignment<Name<_Operand, true>, _Other>((Name<_Operand, true>&&)*this, (_Other&&)rrOther); \
+		} \
+	};
+
+
 #define LAMBDA_BINARY_FUNCTOR_CLASS(Operator, Name) \
 	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f> \
 	struct Name; \
@@ -349,83 +426,6 @@ namespace Lambda {
 		template<typename _Other> \
 		inline Assignment<Name<_Left, _Right, true, true>, _Other> operator = (_Other &&rrOther) && { \
 			return Assignment<Name<_Left, _Right, true, true>, _Other>((Name<_Left, _Right, true, true>&&)*this, (_Other&&)rrOther); \
-		} \
-	};
-
-
-#define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
-	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
-	struct Name; \
-	template<typename _Operand> \
-	struct Name<_Operand, false> : \
-		public Functor \
-	{ \
-		_Operand m_Operand; \
-		Name(_Operand &&a_rrOperand) \
-			: \
-		m_Operand((_Operand&&)a_rrOperand) {} \
-		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(Operator(m_Operand((_Arguments&&)Arguments...))) { \
-			return Operator(m_Operand((_Arguments&&)Arguments...)); \
-		} \
-		template<typename _Other> \
-		inline Assignment<Name<_Operand, false>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Operand, false>, _Other>((Name<_Operand, false>&&)*this, (_Other&&)rrOther); \
-		} \
-	}; \
-	template<typename _Operand> \
-	struct Name<_Operand, true> : \
-		public Functor \
-	{ \
-		_Operand m_Operand; \
-		Name(_Operand &&a_rrOperand) \
-			: \
-		m_Operand((_Operand&&)a_rrOperand) {} \
-		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&...) -> decltype(Operator m_Operand) { \
-			return Operator m_Operand; \
-		} \
-		template<typename _Other> \
-		inline Assignment<Name<_Operand, true>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Operand, true>, _Other>((Name<_Operand, true>&&)*this, (_Other&&)rrOther); \
-		} \
-	};
-
-#define LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
-	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
-	struct Name; \
-	template<typename _Operand> \
-	struct Name<_Operand, false> : \
-		public Functor \
-	{ \
-		_Operand m_Operand; \
-		Name(_Operand &&a_rrOperand) \
-			: \
-		m_Operand((_Operand&&)a_rrOperand) {} \
-		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&... Arguments) -> decltype((m_Operand((_Arguments&&)Arguments...)) Operator) { \
-			return (m_Operand((_Arguments&&)Arguments...)) Operator; \
-		} \
-		template<typename _Other> \
-		inline Assignment<Name<_Operand, false>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Operand, false>, _Other>((Name<_Operand, false>&&)*this, (_Other&&)rrOther); \
-		} \
-	}; \
-	template<typename _Operand> \
-	struct Name<_Operand, true> : \
-		public Functor \
-	{ \
-		_Operand m_Operand; \
-		Name(_Operand &&a_rrOperand) \
-			: \
-		m_Operand((_Operand&&)a_rrOperand) {} \
-		template<typename... _Arguments> \
-		inline auto operator () (_Arguments&&...) -> decltype(m_Operand Operator) { \
-			return m_Operand Operator; \
-		} \
-		template<typename _Other> \
-		inline Assignment<Name<_Operand, true>, _Other> operator = (_Other &&rrOther) && { \
-			return Assignment<Name<_Operand, true>, _Other>((Name<_Operand, true>&&)*this, (_Other&&)rrOther); \
 		} \
 	};
 
