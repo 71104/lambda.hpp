@@ -4,14 +4,16 @@
 using namespace std;
 
 int main() {
-	cout << "lal" << endl;
+	cout << "lal" << boolalpha << endl;
 
 	(cout << _1)(3) << endl;
+	(cout << _1)(false) << endl;
+	(cout << _1)(3.14) << endl;
 	(cout << _1)((char const*)"trolol") << endl;
 	//(cout << _1)("trolol") << endl;
 
 	int x = 0;
-	(&_1 += _2)(x, 5);
+	(_1l += _2)(x, 5);
 	cout << x << endl;
 
 	//(cout << ~_1 << " lawl" << endl<char, char_traits<char>>)((5 + _1)(6));

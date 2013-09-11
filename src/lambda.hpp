@@ -190,6 +190,7 @@ namespace Lambda {
 	};
 
 
+LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(&, Address)
 LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(*, Indirection)
 LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(+, UnaryPlus)
 LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(-, UnaryMinus)
@@ -287,10 +288,6 @@ LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
 		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Placeholder<_i>::template Apply((_Arguments&&)rrArguments...)) {
 			return Placeholder<_i>::template Apply((_Arguments&&)rrArguments...);
 		}
-
-		inline ReferencePlaceholder<_i> operator & () {
-			return ReferencePlaceholder<_i>();
-		}
 	};
 
 	template<>
@@ -299,16 +296,12 @@ LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
 	{
 		template<typename _Type, typename... _Other>
 		static inline typename remove_reference<_Type>::type Apply(_Type &&rr, _Other&&...) {
-			return typename remove_reference<_Type>::type(rr);
+			return rr;
 		}
 
 		template<typename _Type, typename... _Other>
 		inline typename remove_reference<_Type>::type operator () (_Type &&rr, _Other&&...) {
-			return typename remove_reference<_Type>::type(rr);
-		}
-
-		inline ReferencePlaceholder<0> operator & () {
-			return ReferencePlaceholder<0>();
+			return rr;
 		}
 	};
 
@@ -542,6 +535,7 @@ LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
 
 
 Lambda::Null _0;
+
 Lambda::Placeholder<0> _1;
 Lambda::Placeholder<1> _2;
 Lambda::Placeholder<2> _3;
@@ -553,6 +547,17 @@ Lambda::Placeholder<7> _8;
 Lambda::Placeholder<8> _9;
 Lambda::Placeholder<9> _10;
 
+Lambda::ReferencePlaceholder<0> _1l;
+Lambda::ReferencePlaceholder<1> _2l;
+Lambda::ReferencePlaceholder<2> _3l;
+Lambda::ReferencePlaceholder<3> _4l;
+Lambda::ReferencePlaceholder<4> _5l;
+Lambda::ReferencePlaceholder<5> _6l;
+Lambda::ReferencePlaceholder<6> _7l;
+Lambda::ReferencePlaceholder<7> _8l;
+Lambda::ReferencePlaceholder<8> _9l;
+Lambda::ReferencePlaceholder<9> _10l;
+
 
 #define LAMBDA_PREFIX_UNARY_OPERATOR(Operator, FunctorClass) \
 	template<typename _Operand, typename _Traits = Lambda::FunctorTraits<_Operand>> \
@@ -560,6 +565,7 @@ Lambda::Placeholder<9> _10;
 		return Lambda::FunctorClass<_Operand>((_Operand&&)rrOperand); \
 	}
 
+LAMBDA_PREFIX_UNARY_OPERATOR(&, Address)
 LAMBDA_PREFIX_UNARY_OPERATOR(*, Indirection)
 LAMBDA_PREFIX_UNARY_OPERATOR(+, UnaryPlus)
 LAMBDA_PREFIX_UNARY_OPERATOR(-, UnaryMinus)
