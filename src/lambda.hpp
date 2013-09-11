@@ -64,178 +64,6 @@ namespace Lambda {
 	};
 
 
-	struct Null :
-		public Functor
-	{
-		template<typename... _Arguments>
-		inline void operator () (_Arguments&&...) {}
-	};
-
-
-	template<unsigned int _i>
-	struct Placeholder :
-		public Functor
-	{
-		template<typename _First, typename... _Other>
-		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Placeholder<_i - 1>::template Apply((_Other&&)rrOther...)) {
-			return Placeholder<_i - 1>::template Apply((_Other&&)rrOther...);
-		}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Placeholder<_i>::template Apply((_Arguments&&)rrArguments...)) {
-			return Placeholder<_i>::template Apply((_Arguments&&)rrArguments...);
-		}
-	};
-
-	template<>
-	struct Placeholder<0> :
-		public Functor
-	{
-		template<typename _Type, typename... _Other>
-		static inline _Type Apply(_Type &&rr, _Other&&...) {
-			return rr;
-		}
-
-		template<typename _Type, typename... _Other>
-		inline _Type operator () (_Type &&rr, _Other&&...) {
-			return rr;
-		}
-	};
-
-
-	template<typename _Callable, typename... _BoundArguments>
-	struct Bind;
-
-	template<typename _Callable, typename _FirstBoundArgument, typename... _BoundArguments>
-	struct Bind<_Callable, _FirstBoundArgument, _BoundArguments...> :
-		public Bind<_Callable, _BoundArguments...>
-	{
-		_FirstBoundArgument m_Argument;
-
-		Bind(_Callable &&a_rrCallable, _FirstBoundArgument &&a_rrArgument, _BoundArguments&&... rrNextArguments)
-			:
-		Bind<_Callable, _BoundArguments...>((_Callable&&)a_rrCallable, (_BoundArguments&&)rrNextArguments...),
-			m_Argument((_FirstBoundArgument&&)a_rrArgument) {}
-
-		template<typename... _UnboundArguments>
-		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, (_BoundArguments&&)rrArguments...)) {
-			return Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, (_BoundArguments&&)rrArguments...);
-		}
-	};
-
-	template<typename _Callable>
-	struct Bind<_Callable> :
-		public Functor
-	{
-		_Callable m_Callable;
-
-		Bind(_Callable &&a_rrCallable)
-			:
-		m_Callable((_Callable&&)a_rrCallable) {}
-
-		template<typename... _UnboundArguments>
-		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(m_Callable((_UnboundArguments&&)rrArguments...)) {
-			return m_Callable((_UnboundArguments&&)rrArguments...);
-		}
-	};
-
-
-	template<typename _Left, typename _Right, bool _fLeftBound = IsBound<_Left>::s_f, bool _fRightBound = IsBound<_Right>::s_f>
-	struct Assignment;
-
-	template<typename _Left, typename _Right>
-	struct Assignment<_Left, _Right, false, false> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		Assignment(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left((_Left&&)a_rrLeft),
-			m_Right((_Right&&)a_rrRight) {}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) = m_Right((_Arguments&&)Arguments...)) {
-			return m_Left((_Arguments&&)Arguments...) = m_Right((_Arguments&&)Arguments...);
-		}
-
-		template<typename _Other>
-		inline Assignment<Assignment<_Left, _Right, false, false>&, _Other> operator = (_Other &&rrOther) {
-			return Assignment<Assignment<_Left, _Right, false, false>&, _Other>(*this, (_Other&&)rrOther);
-		}
-	};
-
-	template<typename _Left, typename _Right>
-	struct Assignment<_Left, _Right, true, false> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		Assignment(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left((_Left&&)a_rrLeft),
-			m_Right((_Right&&)a_rrRight) {}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left = m_Right((_Arguments&&)Arguments...)) {
-			return m_Left = m_Right((_Arguments&&)Arguments...);
-		}
-
-		template<typename _Other>
-		inline Assignment<Assignment<_Left, _Right, true, false>&, _Other> operator = (_Other &&rrOther) {
-			return Assignment<Assignment<_Left, _Right, true, false>&, _Other>(*this, (_Other&&)rrOther);
-		}
-	};
-
-	template<typename _Left, typename _Right>
-	struct Assignment<_Left, _Right, false, true> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		Assignment(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left((_Left&&)a_rrLeft),
-			m_Right((_Right&&)a_rrRight) {}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) = m_Right) {
-			return m_Left((_Arguments&&)Arguments...) = m_Right;
-		}
-
-		template<typename _Other>
-		inline Assignment<Assignment<_Left, _Right, false, true>&, _Other> operator = (_Other &&rrOther) {
-			return Assignment<Assignment<_Left, _Right, false, true>&, _Other>(*this, (_Other&&)rrOther);
-		}
-	};
-
-	template<typename _Left, typename _Right>
-	struct Assignment<_Left, _Right, true, true> :
-		public Functor
-	{
-		_Left m_Left;
-		_Right m_Right;
-
-		Assignment(_Left &&a_rrLeft, _Right &&a_rrRight)
-			:
-		m_Left((_Left&&)a_rrLeft),
-			m_Right((_Right&&)a_rrRight) {}
-
-		template<typename... _Arguments>
-		inline auto operator () (_Arguments&&...) -> decltype(m_Left = m_Right) {
-			return m_Left = m_Right;
-		}
-
-		template<typename _Other>
-		inline Assignment<Assignment<_Left, _Right, true, true>&, _Other> operator = (_Other &&rrOther) {
-			return Assignment<Assignment<_Left, _Right, true, true>&, _Other>(*this, (_Other&&)rrOther);
-		}
-	};
-
-
 #define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
 	template<typename _Operand, bool _fBound = IsBound<_Operand>::s_f> \
 	struct Name; \
@@ -314,10 +142,6 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...)) { \
 			return m_Left((_Arguments&&)Arguments...) Operator m_Right((_Arguments&&)Arguments...); \
 		} \
-		template<typename _Other> \
-		inline auto operator = (_Other &&rrOther) -> decltype(Assignment<Name<_Left, _Right, false, false>&, _Other>(*this, (_Other&&)rrOther)) { \
-			return Assignment<Name<_Left, _Right, false, false>&, _Other>(*this, (_Other&&)rrOther); \
-		} \
 	}; \
 	template<typename _Left, typename _Right> \
 	struct Name<_Left, _Right, true, false> : \
@@ -332,10 +156,6 @@ namespace Lambda {
 		template<typename... _Arguments> \
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left Operator m_Right((_Arguments&&)Arguments...)) { \
 			return m_Left Operator m_Right((_Arguments&&)Arguments...); \
-		} \
-		template<typename _Other> \
-		inline auto operator = (_Other &&rrOther) -> decltype(Assignment<Name<_Left, _Right, true, false>&, _Other>(*this, (_Other&&)rrOther)) { \
-			return Assignment<Name<_Left, _Right, true, false>&, _Other>(*this, (_Other&&)rrOther); \
 		} \
 	}; \
 	template<typename _Left, typename _Right> \
@@ -352,10 +172,6 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&... Arguments) -> decltype(m_Left((_Arguments&&)Arguments...) Operator m_Right) { \
 			return m_Left((_Arguments&&)Arguments...) Operator m_Right; \
 		} \
-		template<typename _Other> \
-		inline auto operator = (_Other &&rrOther) -> decltype(Assignment<Name<_Left, _Right, false, true>&, _Other>(*this, (_Other&&)rrOther)) { \
-			return Assignment<Name<_Left, _Right, false, true>&, _Other>(*this, (_Other&&)rrOther); \
-		} \
 	}; \
 	template<typename _Left, typename _Right> \
 	struct Name<_Left, _Right, true, true> : \
@@ -371,10 +187,6 @@ namespace Lambda {
 		inline auto operator () (_Arguments&&...) -> decltype(m_Left Operator m_Right) { \
 			return m_Left Operator m_Right; \
 		} \
-		template<typename _Other> \
-		inline auto operator = (_Other &&rrOther) -> decltype(Assignment<Name<_Left, _Right, true, true>&, _Other>(*this, (_Other&&)rrOther)) { \
-			return Assignment<Name<_Left, _Right, true, true>&, _Other>(*this, (_Other&&)rrOther); \
-		} \
 	};
 
 
@@ -389,6 +201,7 @@ LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(++, PostIncrement)
 LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 
 
+LAMBDA_BINARY_FUNCTOR_CLASS(+, Assignment)
 LAMBDA_BINARY_FUNCTOR_CLASS(+, BinaryPlus)
 LAMBDA_BINARY_FUNCTOR_CLASS(+=, CompoundPlus)
 LAMBDA_BINARY_FUNCTOR_CLASS(-, BinaryMinus)
@@ -420,6 +233,121 @@ LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 
 #define LAMBDA_COMMA ,
 LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
+
+
+	struct Null :
+		public Functor
+	{
+		template<typename... _Arguments>
+		inline void operator () (_Arguments&&...) {}
+	};
+
+
+	template<unsigned int _i>
+	struct ReferencePlaceholder :
+		public Functor
+	{
+		template<typename _First, typename... _Other>
+		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(ReferencePlaceholder<_i - 1>::template Apply((_Other&&)rrOther...)) {
+			return ReferencePlaceholder<_i - 1>::template Apply((_Other&&)rrOther...);
+		}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... rrArguments) -> decltype(ReferencePlaceholder<_i>::template Apply((_Arguments&&)rrArguments...)) {
+			return ReferencePlaceholder<_i>::template Apply((_Arguments&&)rrArguments...);
+		}
+	};
+
+	template<>
+	struct ReferencePlaceholder<0> :
+		public Functor
+	{
+		template<typename _Type, typename... _Other>
+		static inline _Type Apply(_Type &&rr, _Other&&...) {
+			return rr;
+		}
+
+		template<typename _Type, typename... _Other>
+		inline _Type operator () (_Type &&rr, _Other&&...) {
+			return rr;
+		}
+	};
+
+
+	template<unsigned int _i>
+	struct Placeholder :
+		public Functor
+	{
+		template<typename _First, typename... _Other>
+		static inline auto Apply(_First&&, _Other&&... rrOther) -> decltype(Placeholder<_i - 1>::template Apply((_Other&&)rrOther...)) {
+			return Placeholder<_i - 1>::template Apply((_Other&&)rrOther...);
+		}
+
+		template<typename... _Arguments>
+		inline auto operator () (_Arguments&&... rrArguments) -> decltype(Placeholder<_i>::template Apply((_Arguments&&)rrArguments...)) {
+			return Placeholder<_i>::template Apply((_Arguments&&)rrArguments...);
+		}
+
+		inline ReferencePlaceholder<_i> operator & () {
+			return ReferencePlaceholder<_i>();
+		}
+	};
+
+	template<>
+	struct Placeholder<0> :
+		public Functor
+	{
+		template<typename _Type, typename... _Other>
+		static inline typename remove_reference<_Type>::type Apply(_Type &&rr, _Other&&...) {
+			return typename remove_reference<_Type>::type(rr);
+		}
+
+		template<typename _Type, typename... _Other>
+		inline typename remove_reference<_Type>::type operator () (_Type &&rr, _Other&&...) {
+			return typename remove_reference<_Type>::type(rr);
+		}
+
+		inline ReferencePlaceholder<0> operator & () {
+			return ReferencePlaceholder<0>();
+		}
+	};
+
+
+	template<typename _Callable, typename... _BoundArguments>
+	struct Bind;
+
+	template<typename _Callable, typename _FirstBoundArgument, typename... _BoundArguments>
+	struct Bind<_Callable, _FirstBoundArgument, _BoundArguments...> :
+		public Bind<_Callable, _BoundArguments...>
+	{
+		_FirstBoundArgument m_Argument;
+
+		Bind(_Callable &&a_rrCallable, _FirstBoundArgument &&a_rrArgument, _BoundArguments&&... rrNextArguments)
+			:
+		Bind<_Callable, _BoundArguments...>((_Callable&&)a_rrCallable, (_BoundArguments&&)rrNextArguments...),
+			m_Argument((_FirstBoundArgument&&)a_rrArgument) {}
+
+		template<typename... _UnboundArguments>
+		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, (_BoundArguments&&)rrArguments...)) {
+			return Bind<_Callable, _BoundArguments...>::template operator () (m_Argument, (_BoundArguments&&)rrArguments...);
+		}
+	};
+
+	template<typename _Callable>
+	struct Bind<_Callable> :
+		public Functor
+	{
+		_Callable m_Callable;
+
+		Bind(_Callable &&a_rrCallable)
+			:
+		m_Callable((_Callable&&)a_rrCallable) {}
+
+		template<typename... _UnboundArguments>
+		inline auto operator () (_UnboundArguments&&... rrArguments) -> decltype(m_Callable((_UnboundArguments&&)rrArguments...)) {
+			return m_Callable((_UnboundArguments&&)rrArguments...);
+		}
+	};
 
 
 	template<typename _Type>
