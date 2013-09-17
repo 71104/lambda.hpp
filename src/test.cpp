@@ -10,8 +10,10 @@ int main() {
 	assert(3 == _1(3));
 	assert(false == _1(false));
 	assert(3.14 == _1(3.14));
-	//assert(string("ok") == string(_1((char const*)"ok")));
 	//assert(string("ok") == _1("ok"));
+	//assert(string("ok") == _1((char const[])"ok"));
+	//assert(string("ok") == string(_1((char const*)"ok")));
+	//assert(string("ok") == _1(string("ok")));
 	//{
 	//	char const sz[] = "ok";
 	//	assert(string("ok") == _1(sz));

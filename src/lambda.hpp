@@ -5,6 +5,12 @@
 
 
 namespace Lambda {
+	struct Unused {
+		template<typename... _Arguments>
+		Unused(_Arguments&...) {}
+	};
+
+
 	using namespace std;
 
 
@@ -535,29 +541,35 @@ LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
 }
 
 
-Lambda::Null _0;
+static Lambda::Null _0;
 
-Lambda::Placeholder<0> _1;
-Lambda::Placeholder<1> _2;
-Lambda::Placeholder<2> _3;
-Lambda::Placeholder<3> _4;
-Lambda::Placeholder<4> _5;
-Lambda::Placeholder<5> _6;
-Lambda::Placeholder<6> _7;
-Lambda::Placeholder<7> _8;
-Lambda::Placeholder<8> _9;
-Lambda::Placeholder<9> _10;
+static Lambda::Placeholder<0> _1;
+static Lambda::Placeholder<1> _2;
+static Lambda::Placeholder<2> _3;
+static Lambda::Placeholder<3> _4;
+static Lambda::Placeholder<4> _5;
+static Lambda::Placeholder<5> _6;
+static Lambda::Placeholder<6> _7;
+static Lambda::Placeholder<7> _8;
+static Lambda::Placeholder<8> _9;
+static Lambda::Placeholder<9> _10;
 
-Lambda::ReferencePlaceholder<0> _1l;
-Lambda::ReferencePlaceholder<1> _2l;
-Lambda::ReferencePlaceholder<2> _3l;
-Lambda::ReferencePlaceholder<3> _4l;
-Lambda::ReferencePlaceholder<4> _5l;
-Lambda::ReferencePlaceholder<5> _6l;
-Lambda::ReferencePlaceholder<6> _7l;
-Lambda::ReferencePlaceholder<7> _8l;
-Lambda::ReferencePlaceholder<8> _9l;
-Lambda::ReferencePlaceholder<9> _10l;
+static Lambda::ReferencePlaceholder<0> _1l;
+static Lambda::ReferencePlaceholder<1> _2l;
+static Lambda::ReferencePlaceholder<2> _3l;
+static Lambda::ReferencePlaceholder<3> _4l;
+static Lambda::ReferencePlaceholder<4> _5l;
+static Lambda::ReferencePlaceholder<5> _6l;
+static Lambda::ReferencePlaceholder<6> _7l;
+static Lambda::ReferencePlaceholder<7> _8l;
+static Lambda::ReferencePlaceholder<8> _9l;
+static Lambda::ReferencePlaceholder<9> _10l;
+
+
+static Lambda::Unused g_Unused = Lambda::Unused(
+	_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10,
+	_1l, _2l, _3l, _4l, _5l, _6l, _7l, _8l, _9l, _10l
+	);
 
 
 #define LAMBDA_PREFIX_UNARY_OPERATOR(Operator, FunctorClass) \
