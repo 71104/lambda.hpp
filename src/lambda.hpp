@@ -1,3 +1,6 @@
+#ifndef __LAMBDA_H__
+#define __LAMBDA_H__
+
 #include <type_traits>
 
 
@@ -674,3 +677,5 @@ template<typename _Initialization, typename _Condition, typename _Increment, typ
 Lambda::For<_Initialization, _Condition, _Increment, _Body> for_loop(_Initialization &&rrInitialization, _Condition &&rrCondition, _Increment &&rrIncrement, _Body &&rrBody = _0) {
 	return Lambda::For<_Initialization, _Condition, _Increment, _Body>((_Initialization&&)rrInitialization, (_Condition&&)rrCondition, (_Increment&&)rrIncrement, (_Body&&)rrBody);
 }
+
+#endif
