@@ -1,20 +1,38 @@
-#include <stdafx.h>
 #include <lambda.hpp>
+#include <stdafx.h>
+#include <cassert>
 
 using namespace std;
 
 int main() {
-	cout << "lal" << boolalpha << endl;
+	cout << "Running tests..." << endl;
 
-	(cout << _1)(3) << endl;
-	(cout << _1)(false) << endl;
-	(cout << _1)(3.14) << endl;
-	(cout << _1)((char const*)"trolol") << endl;
-	//(cout << _1)("trolol") << endl;
+	assert(3 == _1(3));
+	assert(false == _1(false));
+	assert(3.14 == _1(3.14));
+	//assert(string("ok") == string(_1((char const*)"ok")));
+	//assert(string("ok") == _1("ok"));
+	//{
+	//	char const sz[] = "ok";
+	//	assert(string("ok") == _1(sz));
+	//}
+	//{
+	//	char const *const psz = "ok";
+	//	assert(string("ok") == (char const[])(_1(psz)));
+	//}
 
-	int x = 0;
-	(_1l += _2)(x, 5);
-	cout << x << endl;
+	// TODO
+
+	{
+		int x = 3;
+		assert(8 == (_1 + _2)(x, 5));
+		assert(3 == x);
+	}
+	{
+		int x = 3;
+		assert(8 == (_1l += _2)(x, 5));
+		assert(8 == x);
+	}
 
 	//(cout << ~_1 << " lawl" << endl<char, char_traits<char>>)((5 + _1)(6));
 	//cout << (_1 + _2)(3, 4) << endl;
@@ -46,5 +64,6 @@ int main() {
 	//} f;
 	//bind(f, 1)(2);
 
+	cout << "Ok, everything\'s fine" << endl;
 	return 0;
 }

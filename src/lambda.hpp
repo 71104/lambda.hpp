@@ -1,6 +1,9 @@
 #include <type_traits>
 
 
+#define LAMBDA_COMMA ,
+
+
 namespace Lambda {
 	using namespace std;
 
@@ -231,8 +234,6 @@ LAMBDA_BINARY_FUNCTOR_CLASS(<, LessThan)
 LAMBDA_BINARY_FUNCTOR_CLASS(>, GreaterThan)
 LAMBDA_BINARY_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
-
-#define LAMBDA_COMMA ,
 LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
 
 
@@ -609,12 +610,7 @@ LAMBDA_BINARY_OPERATOR(<, LessThan)
 LAMBDA_BINARY_OPERATOR(>, GreaterThan)
 LAMBDA_BINARY_OPERATOR(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_OPERATOR(>=, GreaterThanOrEqualTo)
-
-
-template<typename _Left, typename _Right, typename _Traits = Lambda::FunctorTraits2<_Left, _Right>> \
-inline Lambda::Comma<_Left, _Right> operator , (_Left &&rrLeft, _Right &&rrRight) { \
-	return _Traits::template Build<Lambda::Comma<_Left, _Right>>((_Left&&)rrLeft, (_Right&&)rrRight); \
-}
+LAMBDA_BINARY_OPERATOR(LAMBDA_COMMA, Comma)
 
 
 template<typename _Type>
