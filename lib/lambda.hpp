@@ -33,6 +33,29 @@ namespace Lambda {
 			return rrFirst;
 		}
 	};
+
+	static Bind<0> _1;
+	static Bind<1> _2;
+	static Bind<2> _3;
+	static Bind<3> _4;
+	static Bind<4> _5;
+	static Bind<5> _6;
+	static Bind<6> _7;
+	static Bind<7> _8;
+	static Bind<8> _9;
+	static Bind<9> _10;
+
+	template<typename _Operand>
+	struct UnaryFunctor :
+		public Functor
+	{
+		_Operand m_Operand;
+
+		template<typename ..._Arguments>
+		inline void operator () (_Arguments &&...rrArguments) {
+			m_Operand((_Arguments&&)rrArguments...);
+		}
+	};
 }
 
 #endif
