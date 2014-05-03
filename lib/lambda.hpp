@@ -1,18 +1,14 @@
 #ifndef __LAMBDA_HPP__
 #define __LAMBDA_HPP__
 
+#include <type_traits>
+
 namespace Lambda {
+	using namespace std;
+
 	struct Unused {
 		template<typename... _Arguments>
 		Unused(_Arguments&...) {}
-	};
-
-	struct Yes {
-		char m[1];
-	};
-
-	struct No {
-		char m[2];
 	};
 
 	enum True {
@@ -23,44 +19,19 @@ namespace Lambda {
 		FALSE = 0
 	};
 
-	template<unsigned int const _cb>
+	template<bool const _f>
 	struct Boolean;
 
-	template<>
-	struct Boolean<sizeof(Yes)> {
+	template <>
+	struct Boolean<true> {
 		typedef True Type;
 		static True constexpr s_Value = TRUE;
 	};
 
-	template<>
-	struct Boolean<sizeof(No)> {
+	template <>
+	struct Boolean<false> {
 		typedef False Type;
 		static False constexpr s_Value = FALSE;
-	};
-
-	template<typename _Type>
-	struct CleanType {
-		typedef _Type Type;
-	};
-
-	template<typename _Type>
-	struct CleanType<_Type&> {
-		typedef typename CleanType<_Type>::Type Type;
-	};
-
-	template<typename _Type>
-	struct CleanType<_Type&&> {
-		typedef typename CleanType<_Type>::Type Type;
-	};
-
-	template<typename _Type>
-	struct CleanType<_Type const> {
-		typedef typename CleanType<_Type>::Type Type;
-	};
-
-	template<typename _Type>
-	struct CleanType<_Type volatile> {
-		typedef typename CleanType<_Type>::Type Type;
 	};
 
 	template<unsigned int const _i, typename ..._Types>
@@ -77,9 +48,8 @@ namespace Lambda {
 
 	template<typename _Type>
 	struct IsFunctor {
-		static Yes test(Functor*);
-		static No test(void*);
-		typedef Boolean<sizeof(test((typename CleanType<_Type>::Type*)0))> BooleanType;
+		typedef typename remove_cv<typename remove_reference<_Type>::type>::type Clean;
+		typedef Boolean<is_base_of<Functor, Clean>::value> BooleanType;
 		static typename BooleanType::Type constexpr s_Value = BooleanType::s_Value;
 	};
 
