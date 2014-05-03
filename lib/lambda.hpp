@@ -46,15 +46,19 @@ namespace Lambda {
 		}
 	};
 
-	template<typename _Operand>
-	struct UnaryFunctor :
+	template<typename _Type>
+	struct Constant :
 		public Functor
 	{
-		_Operand m_Operand;
+		_Type m_Value;
+
+		explicit Constant(_Type &&a_rrValue)
+			:
+		m_Value((_Type&&)a_rrValue) {}
 
 		template<typename ..._Arguments>
-		inline void operator () (_Arguments &&...rrArguments) {
-			m_Operand((_Arguments&&)rrArguments...);
+		inline _Type operator () (_Arguments&&...) {
+			return m_Value;
 		}
 	};
 }
@@ -72,5 +76,50 @@ static Lambda::Bind<8> _9;
 static Lambda::Bind<9> _10;
 
 static Lambda::Unused g_Unused = Lambda::Unused(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10);
+
+#define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
+	template<typename _Operand> \
+	struct Name : \
+		public UnaryFunctor \
+	{ \
+		_Operand m_Operand; \
+		explicit Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand((_Operand&&)a_rrOperand) {} \
+		template<typename ..._Arguments> \
+		inline auto operator () (_Arguments &&...rrArguments) -> decltype(Operator(m_Operand((_Arguments&&)rrArguments...))) { \
+			Operator(m_Operand((_Arguments&&)rrArguments...)); \
+		} \
+	};
+
+#define LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
+	template<typename _Operand> \
+	struct Name : \
+		public UnaryFunctor \
+	{ \
+		_Operand m_Operand; \
+		explicit Name(_Operand &&a_rrOperand) \
+			: \
+		m_Operand((_Operand&&)a_rrOperand) {} \
+		template<typename ..._Arguments> \
+		inline auto operator () (_Arguments &&...rrArguments) -> decltype((m_Operand((_Arguments&&)rrArguments...))Operator) { \
+			(m_Operand((_Arguments&&)rrArguments...))Operator; \
+		} \
+	};
+
+namespace Lambda {
+	struct UnaryFunctor : public Functor {};
+
+	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(&, Address)
+	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(*, Indirection)
+	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(+, UnaryPlus)
+	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(-, UnaryMinus)
+	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(!, LogicalNot)
+	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(~, BitwiseNot)
+	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(++, PreIncrement)
+	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(--, PreDecrement)
+	LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(++, PostIncrement)
+	LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
+}
 
 #endif
