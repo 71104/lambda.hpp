@@ -7,8 +7,13 @@ namespace Lambda {
 		Unused(_Arguments&...) {}
 	};
 
-	enum True {};
-	enum False {};
+	enum True {
+		TRUE
+	};
+
+	enum False {
+		FALSE
+	};
 
 	template<unsigned int const _i, typename ..._Types>
 	struct FindType {
@@ -24,13 +29,13 @@ namespace Lambda {
 
 	template<typename _Type>
 	struct IsFunctor {
-		static False constexpr s_Value = {};
+		static False constexpr s_Value = FALSE;
 		static bool constexpr s_f = false;
 	};
 
 	template<>
 	struct IsFunctor<Functor> {
-		static True constexpr s_Value = {};
+		static True constexpr s_Value = TRUE;
 		static bool constexpr s_f = true;
 	};
 
