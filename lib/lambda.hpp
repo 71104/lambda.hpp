@@ -19,6 +19,13 @@ namespace Lambda {
 
 	struct Functor {};
 
+	struct Null :
+		public Functor
+	{
+		template<typename ..._Arguments>
+		inline void operator () (_Arguments &&...rrArguments) {}
+	};
+
 	template<unsigned int const _i>
 	struct Bind :
 		public Functor
@@ -52,6 +59,7 @@ namespace Lambda {
 	};
 }
 
+static Lambda::Null _0;
 static Lambda::Bind<0> _1;
 static Lambda::Bind<1> _2;
 static Lambda::Bind<2> _3;
@@ -63,8 +71,6 @@ static Lambda::Bind<7> _8;
 static Lambda::Bind<8> _9;
 static Lambda::Bind<9> _10;
 
-static Lambda::Unused g_Unused = Lambda::Unused(
-	_1, _2, _3, _4, _5, _6, _7, _8, _9, _10
-	);
+static Lambda::Unused g_Unused = Lambda::Unused(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10);
 
 #endif
