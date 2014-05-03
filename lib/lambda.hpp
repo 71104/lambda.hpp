@@ -7,6 +7,9 @@ namespace Lambda {
 		Unused(_Arguments&...) {}
 	};
 
+	enum True {};
+	enum False {};
+
 	template<unsigned int const _i, typename ..._Types>
 	struct FindType {
 		typedef typename FindType<_i - 1, _Types...>::Type Type;
@@ -18,6 +21,18 @@ namespace Lambda {
 	};
 
 	struct Functor {};
+
+	template<typename _Type>
+	struct IsFunctor {
+		static False constexpr s_Value = {};
+		static bool constexpr s_f = false;
+	};
+
+	template<>
+	struct IsFunctor<Functor> {
+		static True constexpr s_Value = {};
+		static bool constexpr s_f = true;
+	};
 
 	struct Null :
 		public Functor
@@ -78,7 +93,7 @@ static Lambda::Bind<9> _10;
 static Lambda::Unused g_Unused = Lambda::Unused(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10);
 
 #define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
-	template<typename _Operand> \
+	template<typename _Operand, True const _fIsFunctor = IsFunctor<_Operand>::s_Value> \
 	struct Name : \
 		public UnaryFunctor \
 	{ \
@@ -93,7 +108,7 @@ static Lambda::Unused g_Unused = Lambda::Unused(_0, _1, _2, _3, _4, _5, _6, _7, 
 	};
 
 #define LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
-	template<typename _Operand> \
+	template<typename _Operand, True const _fIsFunctor = IsFunctor<_Operand>::s_Value> \
 	struct Name : \
 		public UnaryFunctor \
 	{ \
@@ -120,6 +135,11 @@ namespace Lambda {
 	LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(--, PreDecrement)
 	LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(++, PostIncrement)
 	LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
+}
+
+template<typename _Operand>
+inline Lambda::Address<_Operand> operator & (_Operand &&rrOperand) {
+	return Lambda::Address<_Operand>((_Operand&&)rrOperand);
 }
 
 #endif
