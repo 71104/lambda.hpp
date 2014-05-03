@@ -7,12 +7,60 @@ namespace Lambda {
 		Unused(_Arguments&...) {}
 	};
 
+	struct Yes {
+		char m[1];
+	};
+
+	struct No {
+		char m[2];
+	};
+
 	enum True {
-		TRUE
+		TRUE = 1
 	};
 
 	enum False {
-		FALSE
+		FALSE = 0
+	};
+
+	template<unsigned int const _cb>
+	struct Boolean;
+
+	template<>
+	struct Boolean<sizeof(Yes)> {
+		typedef True Type;
+		static True constexpr s_Value = TRUE;
+	};
+
+	template<>
+	struct Boolean<sizeof(No)> {
+		typedef False Type;
+		static False constexpr s_Value = FALSE;
+	};
+
+	template<typename _Type>
+	struct CleanType {
+		typedef _Type Type;
+	};
+
+	template<typename _Type>
+	struct CleanType<_Type&> {
+		typedef typename CleanType<_Type>::Type Type;
+	};
+
+	template<typename _Type>
+	struct CleanType<_Type&&> {
+		typedef typename CleanType<_Type>::Type Type;
+	};
+
+	template<typename _Type>
+	struct CleanType<_Type const> {
+		typedef typename CleanType<_Type>::Type Type;
+	};
+
+	template<typename _Type>
+	struct CleanType<_Type volatile> {
+		typedef typename CleanType<_Type>::Type Type;
 	};
 
 	template<unsigned int const _i, typename ..._Types>
@@ -29,14 +77,10 @@ namespace Lambda {
 
 	template<typename _Type>
 	struct IsFunctor {
-		static False constexpr s_Value = FALSE;
-		static bool constexpr s_f = false;
-	};
-
-	template<>
-	struct IsFunctor<Functor> {
-		static True constexpr s_Value = TRUE;
-		static bool constexpr s_f = true;
+		static Yes test(Functor*);
+		static No test(void*);
+		typedef Boolean<sizeof(test((typename CleanType<_Type>::Type*)0))> BooleanType;
+		static typename BooleanType::Type constexpr s_Value = BooleanType::s_Value;
 	};
 
 	struct Null :
@@ -98,7 +142,7 @@ static Lambda::Bind<9> _10;
 static Lambda::Unused g_Unused = Lambda::Unused(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10);
 
 #define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
-	template<typename _Operand, True const _fIsFunctor = IsFunctor<_Operand>::s_Value> \
+	template<typename _Operand, True const _IsFunctor = IsFunctor<_Operand>::s_Value> \
 	struct Name : \
 		public UnaryFunctor \
 	{ \
@@ -108,12 +152,12 @@ static Lambda::Unused g_Unused = Lambda::Unused(_0, _1, _2, _3, _4, _5, _6, _7, 
 		m_Operand((_Operand&&)a_rrOperand) {} \
 		template<typename ..._Arguments> \
 		inline auto operator () (_Arguments &&...rrArguments) -> decltype(Operator(m_Operand((_Arguments&&)rrArguments...))) { \
-			Operator(m_Operand((_Arguments&&)rrArguments...)); \
+			return Operator(m_Operand((_Arguments&&)rrArguments...)); \
 		} \
 	};
 
 #define LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
-	template<typename _Operand, True const _fIsFunctor = IsFunctor<_Operand>::s_Value> \
+	template<typename _Operand, True const _IsFunctor = IsFunctor<_Operand>::s_Value> \
 	struct Name : \
 		public UnaryFunctor \
 	{ \
@@ -123,7 +167,7 @@ static Lambda::Unused g_Unused = Lambda::Unused(_0, _1, _2, _3, _4, _5, _6, _7, 
 		m_Operand((_Operand&&)a_rrOperand) {} \
 		template<typename ..._Arguments> \
 		inline auto operator () (_Arguments &&...rrArguments) -> decltype((m_Operand((_Arguments&&)rrArguments...))Operator) { \
-			(m_Operand((_Arguments&&)rrArguments...))Operator; \
+			return (m_Operand((_Arguments&&)rrArguments...))Operator; \
 		} \
 	};
 
@@ -142,9 +186,19 @@ namespace Lambda {
 	LAMBDA_POSTFIX_UNARY_FUNCTOR_CLASS(--, PostDecrement)
 }
 
-template<typename _Operand>
-inline Lambda::Address<_Operand> operator & (_Operand &&rrOperand) {
-	return Lambda::Address<_Operand>((_Operand&&)rrOperand);
-}
+#define LAMBDA_PREFIX_UNARY_OPERATOR(Operator, Name) \
+	template<typename _Operand> \
+	inline Lambda::Name<_Operand> operator Operator (_Operand &&rrOperand) { \
+		return Lambda::Name<_Operand>((_Operand&&)rrOperand); \
+	}
+
+LAMBDA_PREFIX_UNARY_OPERATOR(&, Address)
+LAMBDA_PREFIX_UNARY_OPERATOR(*, Indirection)
+LAMBDA_PREFIX_UNARY_OPERATOR(+, UnaryPlus)
+LAMBDA_PREFIX_UNARY_OPERATOR(-, UnaryMinus)
+LAMBDA_PREFIX_UNARY_OPERATOR(!, LogicalNot)
+LAMBDA_PREFIX_UNARY_OPERATOR(~, BitwiseNot)
+LAMBDA_PREFIX_UNARY_OPERATOR(++, PreIncrement)
+LAMBDA_PREFIX_UNARY_OPERATOR(--, PreDecrement)
 
 #endif

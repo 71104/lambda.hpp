@@ -16,14 +16,18 @@ int main() {
 	}
 
 	{
-		cout << IsFunctor<int>::s_f << endl;
-		cout << IsFunctor<Functor>::s_f << endl;
-		cout << IsFunctor<Bind<0>>::s_f << endl;
+		cout << IsFunctor<int>::s_Value << endl;
+		cout << IsFunctor<Functor>::s_Value << endl;
+		cout << IsFunctor<Bind<0>>::s_Value << endl;
 	}
 
 	{
 		struct {} x;
-		bool y = &x;
+		cout << &x << endl;
+	}
+
+	{
+		cout << (!_1)(false) << " " << (!_1)(true) << endl;
 	}
 
 	return 0;
