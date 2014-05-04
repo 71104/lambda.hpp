@@ -27,7 +27,7 @@ int main() {
 	}
 
 	{
-		cout << (!_1)(false) << " " << (!_1)(true) << endl;
+		cout << (!_1)(false) << " " << (!_1)(true) << " " << (!!_1)(true) << endl;
 	}
 
 	return 0;

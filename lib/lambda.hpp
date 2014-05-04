@@ -171,4 +171,56 @@ LAMBDA_PREFIX_UNARY_OPERATOR(~, BitwiseNot)
 LAMBDA_PREFIX_UNARY_OPERATOR(++, PreIncrement)
 LAMBDA_PREFIX_UNARY_OPERATOR(--, PreDecrement)
 
+#define LAMBDA_BINARY_FUNCTOR_CLASS(Operator, Name) \
+	template<typename _Left, typename _Right> \
+	struct Name : \
+		public BinaryFunctor \
+	{ \
+		_Left m_Left; \
+		_Right m_Right; \
+		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
+			: \
+		m_Left((_Left&&)a_rrLeft, (_Right&&)a_rrRight) {} \
+		template<typename ..._Arguments> \
+		inline auto operator () (_Arguments &&...rrArguments) -> decltype((_Left((_Arguments&&)rrArguments...)) Operator (_Right((_Arguments&&)rrArguments...))) { \
+			return (_Left((_Arguments&&)rrArguments...)) Operator (_Right((_Arguments&&)rrArguments...)); \
+		} \
+	};
+
+#define LAMBDA_COMMA ,
+
+namespace Lambda {
+	struct BinaryFunctor : public Functor {};
+
+	LAMBDA_BINARY_FUNCTOR_CLASS(+, BinaryPlus)
+	LAMBDA_BINARY_FUNCTOR_CLASS(+=, CompoundPlus)
+	LAMBDA_BINARY_FUNCTOR_CLASS(-, BinaryMinus)
+	LAMBDA_BINARY_FUNCTOR_CLASS(-=, CompoundMinus)
+	LAMBDA_BINARY_FUNCTOR_CLASS(*, Multiply)
+	LAMBDA_BINARY_FUNCTOR_CLASS(*=, CompoundMultiply)
+	LAMBDA_BINARY_FUNCTOR_CLASS(/, Divide)
+	LAMBDA_BINARY_FUNCTOR_CLASS(/=, CompoundDivide)
+	LAMBDA_BINARY_FUNCTOR_CLASS(%, Modulus)
+	LAMBDA_BINARY_FUNCTOR_CLASS(%=, CompoundModulus)
+	LAMBDA_BINARY_FUNCTOR_CLASS(&, BitwiseAnd)
+	LAMBDA_BINARY_FUNCTOR_CLASS(|, BitwiseOr)
+	LAMBDA_BINARY_FUNCTOR_CLASS(^, BitwiseXor)
+	LAMBDA_BINARY_FUNCTOR_CLASS(&=, CompoundAnd)
+	LAMBDA_BINARY_FUNCTOR_CLASS(|=, CompoundOr)
+	LAMBDA_BINARY_FUNCTOR_CLASS(^=, CompoundXor)
+	LAMBDA_BINARY_FUNCTOR_CLASS(&&, LogicalAnd)
+	LAMBDA_BINARY_FUNCTOR_CLASS(||, LogicalOr)
+	LAMBDA_BINARY_FUNCTOR_CLASS(<<, LeftShift)
+	LAMBDA_BINARY_FUNCTOR_CLASS(<<=, CompoundLeftShift)
+	LAMBDA_BINARY_FUNCTOR_CLASS(>>, RightShift)
+	LAMBDA_BINARY_FUNCTOR_CLASS(>>=, CompoundRightShift)
+	LAMBDA_BINARY_FUNCTOR_CLASS(==, Equals)
+	LAMBDA_BINARY_FUNCTOR_CLASS(!=, NotEqual)
+	LAMBDA_BINARY_FUNCTOR_CLASS(<, LessThan)
+	LAMBDA_BINARY_FUNCTOR_CLASS(>, GreaterThan)
+	LAMBDA_BINARY_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
+	LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
+	LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
+}
+
 #endif
