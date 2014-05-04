@@ -18,6 +18,7 @@ int main() {
 	{
 		cout << IsFunctor<int>::s_Value << endl;
 		cout << IsFunctor<Functor>::s_Value << endl;
+		cout << IsFunctor<Constant<int>>::s_Value << endl;
 		cout << IsFunctor<Bind<0>>::s_Value << endl;
 	}
 

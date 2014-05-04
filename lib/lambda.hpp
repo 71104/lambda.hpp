@@ -73,7 +73,7 @@ namespace Lambda {
 		}
 	};
 
-	template<typename _Type>
+	template<typename _Type, False const _IsFunctor = IsFunctor<_Type>::s_Value>
 	struct Constant :
 		public Functor
 	{
@@ -245,6 +245,14 @@ namespace Lambda {
 	template<typename _Left, typename _Right> \
 	inline Lambda::Name<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
 		return Lambda::Name<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight); \
+	} \
+	template<typename _Left, typename _Right> \
+	inline Lambda::Name<Lambda::Constant<_Left>, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
+		return Lambda::Name<Lambda::Constant<_Left>, _Right>(Lambda::Constant<_Left>((_Left&&)rrLeft), (_Right&&)rrRight); \
+	} \
+	template<typename _Left, typename _Right> \
+	inline Lambda::Name<_Left, Lambda::Constant<_Right>> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
+		return Lambda::Name<_Left, Lambda::Constant<_Right>>((_Left&&)rrLeft, Lambda::Constant<_Right>((_Right&&)rrRight)); \
 	}
 
 LAMBDA_BINARY_OPERATOR(+, BinaryPlus)
