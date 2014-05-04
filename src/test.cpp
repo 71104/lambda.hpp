@@ -23,7 +23,7 @@ int main() {
 
 	{
 		struct {} x;
-		cout << &x << endl;
+		cout << &x << " " << (5 + 5) << endl;
 	}
 
 	{

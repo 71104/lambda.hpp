@@ -172,7 +172,9 @@ LAMBDA_PREFIX_UNARY_OPERATOR(++, PreIncrement)
 LAMBDA_PREFIX_UNARY_OPERATOR(--, PreDecrement)
 
 #define LAMBDA_BINARY_FUNCTOR_CLASS(Operator, Name) \
-	template<typename _Left, typename _Right> \
+	template<typename _Left, typename _Right, \
+		True const _LeftIsFunctor = IsFunctor<_Left>::s_Value, \
+		True const _RightIsFunctor = IsFunctor<_Right>::s_Value> \
 	struct Name : \
 		public BinaryFunctor \
 	{ \
@@ -221,6 +223,61 @@ namespace Lambda {
 	LAMBDA_BINARY_FUNCTOR_CLASS(<=, LessThanOrEqualTo)
 	LAMBDA_BINARY_FUNCTOR_CLASS(>=, GreaterThanOrEqualTo)
 	LAMBDA_BINARY_FUNCTOR_CLASS(LAMBDA_COMMA, Comma)
+
+	template<typename _Left, typename _Right,
+		True const _LeftIsFunctor = IsFunctor<_Left>::s_Value,
+		True const _RightIsFunctor = IsFunctor<_Right>::s_Value>
+	struct Subscript :
+		public BinaryFunctor
+	{
+		_Left m_Left;
+		_Right m_Right;
+
+		Subscript(_Left &&a_rrLeft, _Right &&a_rrRight)
+			:
+		m_Left((_Left&&)a_rrLeft, (_Right&&)a_rrRight) {}
+
+		template<typename ..._Arguments>
+		inline auto operator () (_Arguments &&...rrArguments) -> decltype((_Left((_Arguments&&)rrArguments...))[(_Right((_Arguments&&)rrArguments...))]) {
+			return (_Left((_Arguments&&)rrArguments...))[(_Right((_Arguments&&)rrArguments...))];
+		}
+	};
 }
+
+#define LAMBDA_BINARY_OPERATOR(Operator, Name) \
+	template<typename _Left, typename _Right> \
+	inline Lambda::Name<_Left, _Right> operator Operator (_Left &&rrLeft, _Right &&rrRight) { \
+		return Lambda::Name<_Left, _Right>((_Left&&)rrLeft, (_Right&&)rrRight); \
+	}
+
+LAMBDA_BINARY_OPERATOR(+, BinaryPlus)
+LAMBDA_BINARY_OPERATOR(+=, CompoundPlus)
+LAMBDA_BINARY_OPERATOR(-, BinaryMinus)
+LAMBDA_BINARY_OPERATOR(-=, CompoundMinus)
+LAMBDA_BINARY_OPERATOR(*, Multiply)
+LAMBDA_BINARY_OPERATOR(*=, CompoundMultiply)
+LAMBDA_BINARY_OPERATOR(/, Divide)
+LAMBDA_BINARY_OPERATOR(/=, CompoundDivide)
+LAMBDA_BINARY_OPERATOR(%, Modulus)
+LAMBDA_BINARY_OPERATOR(%=, CompoundModulus)
+LAMBDA_BINARY_OPERATOR(&, BitwiseAnd)
+LAMBDA_BINARY_OPERATOR(|, BitwiseOr)
+LAMBDA_BINARY_OPERATOR(^, BitwiseXor)
+LAMBDA_BINARY_OPERATOR(&=, CompoundAnd)
+LAMBDA_BINARY_OPERATOR(|=, CompoundOr)
+LAMBDA_BINARY_OPERATOR(^=, CompoundXor)
+LAMBDA_BINARY_OPERATOR(&&, LogicalAnd)
+LAMBDA_BINARY_OPERATOR(||, LogicalOr)
+LAMBDA_BINARY_OPERATOR(<<, LeftShift)
+LAMBDA_BINARY_OPERATOR(<<=, CompoundLeftShift)
+LAMBDA_BINARY_OPERATOR(>>, RightShift)
+LAMBDA_BINARY_OPERATOR(>>=, CompoundRightShift)
+LAMBDA_BINARY_OPERATOR(==, Equals)
+LAMBDA_BINARY_OPERATOR(!=, NotEqual)
+LAMBDA_BINARY_OPERATOR(<, LessThan)
+LAMBDA_BINARY_OPERATOR(>, GreaterThan)
+LAMBDA_BINARY_OPERATOR(<=, LessThanOrEqualTo)
+LAMBDA_BINARY_OPERATOR(>=, GreaterThanOrEqualTo)
+LAMBDA_BINARY_OPERATOR(LAMBDA_COMMA, Comma)
 
 #endif
