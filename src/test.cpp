@@ -29,6 +29,7 @@ int main() {
 
 	{
 		cout << (!_1)(false) << " " << (!_1)(true) << " " << (!!_1)(true) << endl;
+		(cout << (_1 + 3))(5) << endl;
 	}
 
 	return 0;

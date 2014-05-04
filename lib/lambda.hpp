@@ -179,10 +179,11 @@ LAMBDA_PREFIX_UNARY_OPERATOR(--, PreDecrement)
 		_Right m_Right; \
 		Name(_Left &&a_rrLeft, _Right &&a_rrRight) \
 			: \
-		m_Left((_Left&&)a_rrLeft, (_Right&&)a_rrRight) {} \
+		m_Left((_Left&&)a_rrLeft), \
+			m_Right((_Right&&)a_rrRight) {} \
 		template<typename ..._Arguments> \
-		inline auto operator () (_Arguments &&...rrArguments) -> decltype((_Left((_Arguments&&)rrArguments...)) Operator (_Right((_Arguments&&)rrArguments...))) { \
-			return (_Left((_Arguments&&)rrArguments...)) Operator (_Right((_Arguments&&)rrArguments...)); \
+		inline auto operator () (_Arguments &&...rrArguments) -> decltype((m_Left((_Arguments&&)rrArguments...)) Operator (m_Right((_Arguments&&)rrArguments...))) { \
+			return (m_Left((_Arguments&&)rrArguments...)) Operator (m_Right((_Arguments&&)rrArguments...)); \
 		} \
 	};
 
@@ -232,11 +233,12 @@ namespace Lambda {
 
 		Subscript(_Left &&a_rrLeft, _Right &&a_rrRight)
 			:
-		m_Left((_Left&&)a_rrLeft, (_Right&&)a_rrRight) {}
+		m_Left((_Left&&)a_rrLeft),
+			m_Right((_Right&&)a_rrRight) {}
 
 		template<typename ..._Arguments>
-		inline auto operator () (_Arguments &&...rrArguments) -> decltype((_Left((_Arguments&&)rrArguments...))[(_Right((_Arguments&&)rrArguments...))]) {
-			return (_Left((_Arguments&&)rrArguments...))[(_Right((_Arguments&&)rrArguments...))];
+		inline auto operator () (_Arguments &&...rrArguments) -> decltype((m_Left((_Arguments&&)rrArguments...))[(m_Right((_Arguments&&)rrArguments...))]) {
+			return (m_Left((_Arguments&&)rrArguments...))[(m_Right((_Arguments&&)rrArguments...))];
 		}
 	};
 }
@@ -283,6 +285,6 @@ LAMBDA_BINARY_OPERATOR(<, LessThan)
 LAMBDA_BINARY_OPERATOR(>, GreaterThan)
 LAMBDA_BINARY_OPERATOR(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_OPERATOR(>=, GreaterThanOrEqualTo)
-LAMBDA_BINARY_OPERATOR(LAMBDA_COMMA, Comma)
+//LAMBDA_BINARY_OPERATOR(LAMBDA_COMMA, Comma)
 
 #endif
