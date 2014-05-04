@@ -53,13 +53,6 @@ namespace Lambda {
 		static typename BooleanType::Type constexpr s_Value = BooleanType::s_Value;
 	};
 
-	struct Null :
-		public Functor
-	{
-		template<typename ..._Arguments>
-		inline void operator () (_Arguments &&...rrArguments) {}
-	};
-
 	template<unsigned int const _i>
 	struct Bind :
 		public Functor
@@ -97,7 +90,11 @@ namespace Lambda {
 	};
 }
 
-static Lambda::Null _0;
+template<typename _Operand>
+inline Lambda::Constant<_Operand> _0(_Operand &&rrOperand) {
+	return Lambda::Constant<_Operand>((_Operand&&)rrOperand);
+}
+
 static Lambda::Bind<0> _1;
 static Lambda::Bind<1> _2;
 static Lambda::Bind<2> _3;
@@ -109,7 +106,7 @@ static Lambda::Bind<7> _8;
 static Lambda::Bind<8> _9;
 static Lambda::Bind<9> _10;
 
-static Lambda::Unused g_Unused = Lambda::Unused(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10);
+static Lambda::Unused g_Unused = Lambda::Unused(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10);
 
 #define LAMBDA_PREFIX_UNARY_FUNCTOR_CLASS(Operator, Name) \
 	template<typename _Operand, True const _IsFunctor = IsFunctor<_Operand>::s_Value> \
