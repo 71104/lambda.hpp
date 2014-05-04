@@ -287,4 +287,113 @@ LAMBDA_BINARY_OPERATOR(<=, LessThanOrEqualTo)
 LAMBDA_BINARY_OPERATOR(>=, GreaterThanOrEqualTo)
 LAMBDA_BINARY_OPERATOR(LAMBDA_COMMA, Comma)
 
+template<typename _Condition, typename _Then>
+struct if_then :
+	public Lambda::Functor
+{
+	_Condition m_Condition;
+	_Then m_Then;
+
+	if_then(_Condition &&a_rrCondition, _Then &&a_rrThen)
+		:
+	m_Condition((_Condition&&)a_rrCondition),
+		m_Then((_Then&&)a_rrThen) {}
+
+	template<typename ..._Arguments>
+	inline void operator () (_Arguments &&...rrArguments) {
+		if (m_Condition((_Arguments&&)rrArguments...)) {
+			m_Then((_Arguments&&)rrArguments...);
+		}
+	}
+};
+
+template<typename _Condition, typename _Then, typename _Else>
+struct if_then_else :
+	public Lambda::Functor
+{
+	_Condition m_Condition;
+	_Then m_Then;
+	_Else m_Else;
+
+	if_then_else(_Condition &&a_rrCondition, _Then &&a_rrThen, _Else &&a_rrElse)
+		:
+	m_Condition((_Condition&&)a_rrCondition),
+		m_Then((_Then&&)a_rrThen),
+		m_Else((_Else&&)a_rrElse) {}
+
+	template<typename ..._Arguments>
+	inline void operator () (_Arguments &&...rrArguments) {
+		if (m_Condition((_Arguments&&)rrArguments...)) {
+			m_Then((_Arguments&&)rrArguments...);
+		} else {
+			m_Else((_Arguments&&)rrArguments...);
+		}
+	}
+};
+
+template<typename _Condition, typename _Then, typename _Else>
+struct if_then_else_return :
+	public Lambda::Functor
+{
+	_Condition m_Condition;
+	_Then m_Then;
+	_Else m_Else;
+
+	if_then_else_return(_Condition &&a_rrCondition, _Then &&a_rrThen, _Else &&a_rrElse)
+		:
+	m_Condition((_Condition&&)a_rrCondition),
+		m_Then((_Then&&)a_rrThen),
+		m_Else((_Else&&)a_rrElse) {}
+
+	template<typename ..._Arguments>
+	inline auto operator () (_Arguments &&...rrArguments) -> decltype(m_Condition((_Arguments&&)rrArguments...) ? m_Then((_Arguments&&)rrArguments...) : m_Else((_Arguments&&)rrArguments...)) {
+		return m_Condition((_Arguments&&)rrArguments...) ? m_Then((_Arguments&&)rrArguments...) : m_Else((_Arguments&&)rrArguments...);
+	}
+};
+
+template<typename _Condition, typename _Body>
+struct while_loop :
+	public Lambda::Functor
+{
+	_Condition m_Condition;
+	_Body m_Body;
+
+	while_loop(_Condition &&a_rrCondition, _Body &&a_rrBody = _0(0))
+		:
+	m_Condition((_Condition&&)a_rrCondition),
+		m_Body((_Body&&)a_rrBody) {}
+
+	template<typename ..._Arguments>
+	inline void operator () (_Arguments &&...rrArguments) {
+		while (m_Condition((_Arguments&&)rrArguments...)) {
+			m_Body((_Arguments&&)rrArguments...);
+		}
+	}
+};
+
+template<typename _Condition, typename _Body>
+struct do_while_loop :
+	public Lambda::Functor
+{
+	_Body m_Body;
+	_Condition m_Condition;
+
+	do_while_loop(_Body &&a_rrBody, _Condition &&a_rrCondition)
+		:
+	m_Body((_Body&&)a_rrBody),
+		m_Condition((_Condition&&)a_rrCondition) {}
+
+	do_while_loop(_Condition &&a_rrCondition)
+		:
+	m_Body(_0(0)),
+		m_Condition((_Condition&&)a_rrCondition) {}
+
+	template<typename ..._Arguments>
+	inline void operator () (_Arguments &&...rrArguments) {
+		do {
+			m_Body((_Arguments&&)rrArguments...);
+		} while (m_Condition((_Arguments&&)rrArguments...));
+	}
+};
+
 #endif
