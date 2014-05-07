@@ -19,7 +19,7 @@ int main() {
 		int x = 0;
 		assert(Bind<0>()(x + 1, x, x, x, x) == 1);
 		assert(Bind<0>()(1, 2, 3, 4, 5) == 1);
-		assert(Bind<2>()(x, x, x + 1, x, x) == 1);
+		assert(Bind<2>()(x + 1, x, x, x, x) == 0);
 		assert(Bind<2>()(1, 2, 3, 4, 5) == 3);
 	}
 

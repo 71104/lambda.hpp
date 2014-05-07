@@ -24,11 +24,11 @@ Disadvantages:
 FAQ
 ---
 
-**Why make another lambda expressions implementation when C++0x supports native lambdas?**
+**Why make another lambda expressions implementation when C++1x supports native lambdas?**
 
 Because they suck, you have to either manually specify captured variables or use the verbose `[=]` or `[&]` capture clause. Not to talk about `decltype`.
 
-Also, I don't agree with C++0x natively supporting lambda expressions because there were _already_ lambda expressions in the language, through manual implementations like Boost Lambda and this one. I would have pretty much loved if the standard committee concentrated their efforts in improving the necessary language features to implement more effective lambdas.
+Also, I don't agree with C++1x natively supporting lambda expressions because there were _already_ lambda expressions in the language, through manual implementations like Boost Lambda and this one. I would have pretty much loved if the standard committee concentrated their efforts in improving the necessary language features to implement more effective lambdas.
 
 For example, I would love the direct assignment `=` operator to be like other operators and not need to be a class member so that we didn't have to write:
 
