@@ -35,8 +35,11 @@ namespace Lambda {
 	};
 
 	template<unsigned int const _i, typename ..._Types>
-	struct FindType {
-		typedef typename FindType<_i - 1, _Types...>::Type Type;
+	struct FindType;
+
+	template<unsigned int const _i, typename _First, typename ..._Others>
+	struct FindType<_i, _First, _Others...> {
+		typedef typename FindType<_i - 1, _Others...>::Type Type;
 	};
 
 	template<typename _First, typename ..._Others>
