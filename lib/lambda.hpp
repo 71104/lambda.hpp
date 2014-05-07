@@ -34,11 +34,8 @@ namespace Lambda {
 		static False constexpr s_Value = FALSE;
 	};
 
-	template<unsigned int const _i, typename ..._Types>
-	struct FindType;
-
 	template<unsigned int const _i, typename _First, typename ..._Others>
-	struct FindType<_i, _First, _Others...> {
+	struct FindType {
 		typedef typename FindType<_i - 1, _Others...>::Type Type;
 	};
 
