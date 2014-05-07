@@ -7,7 +7,7 @@ namespace Lambda {
 	using namespace std;
 
 	struct Unused {
-		template<typename... _Arguments>
+		template<typename ..._Arguments>
 		Unused(_Arguments&...) {}
 	};
 
@@ -393,6 +393,34 @@ struct do_while_loop :
 		do {
 			m_Body((_Arguments&&)rrArguments...);
 		} while (m_Condition((_Arguments&&)rrArguments...));
+	}
+};
+
+template<typename _Initializer, typename _Condition, typename _Increment, typename _Body>
+struct for_loop :
+	public Lambda::Functor
+{
+	_Initializer m_Initializer;
+	_Condition m_Condition;
+	_Increment m_Increment;
+	_Body m_Body;
+
+	for_loop(_Initializer &&a_rrInitializer, _Condition &&a_rrCondition, _Increment &&a_rrIncrement, _Body &&a_rrBody)
+		:
+	m_Initializer((_Initializer&&)a_rrInitializer),
+		m_Condition((_Condition&&)a_rrCondition),
+		m_Increment((_Increment&&)a_rrIncrement),
+		m_Body((_Body&&)a_rrBody) {}
+
+	template<typename ..._Arguments>
+	inline void operator () (_Arguments &&...rrArguments) {
+		for (
+			m_Initializer((_Arguments&&)rrArguments...);
+			m_Condition((_Arguments&&)rrArguments...);
+			m_Increment((_Arguments&&)rrArguments...)
+		) {
+			m_Body((_Arguments&&)rrArguments...);
+		}
 	}
 };
 
