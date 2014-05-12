@@ -8,7 +8,10 @@ bin :
 bin/test : bin lib/lambda.hpp src/test.cpp
 	$(CXX) $(CXXFLAGS) -o bin/test src/test.cpp
 
-all : bin/test
+test : bin/test
+	bin/test
+
+all : test
 
 clean :
 	rm -rf bin
