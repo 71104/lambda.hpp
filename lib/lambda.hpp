@@ -50,8 +50,11 @@ namespace Lambda {
 	struct IsFunctor {
 		typedef typename remove_cv<typename remove_reference<_Type>::type>::type Clean;
 		typedef Boolean<is_base_of<Functor, Clean>::value> BooleanType;
-		static typename BooleanType::Type constexpr s_Value = BooleanType::s_Value;
+		static typename BooleanType::Type const s_Value;
 	};
+
+	template<typename _Type>
+	typename IsFunctor<_Type>::BooleanType::Type const IsFunctor<_Type>::s_Value = IsFunctor<_Type>::BooleanType::s_Value;
 
 	template<unsigned int const _i>
 	struct Bind :
