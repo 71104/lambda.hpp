@@ -56,6 +56,13 @@ namespace Lambda {
 	template<typename _Type>
 	typename IsFunctor<_Type>::BooleanType::Type const IsFunctor<_Type>::s_Value = IsFunctor<_Type>::BooleanType::s_Value;
 
+	struct Null :
+		public Functor
+	{
+		template<typename ..._Arguments>
+		inline void operator () (_Arguments &&...rrArguments) {}
+	};
+
 	template<unsigned int const _i>
 	struct Bind :
 		public Functor
@@ -361,7 +368,7 @@ struct while_loop :
 	_Condition m_Condition;
 	_Body m_Body;
 
-	while_loop(_Condition &&a_rrCondition, _Body &&a_rrBody = _0(0))
+	explicit while_loop(_Condition &&a_rrCondition, _Body &&a_rrBody = Lambda::Null())
 		:
 	m_Condition((_Condition&&)a_rrCondition),
 		m_Body((_Body&&)a_rrBody) {}
@@ -386,9 +393,9 @@ struct do_while_loop :
 	m_Body((_Body&&)a_rrBody),
 		m_Condition((_Condition&&)a_rrCondition) {}
 
-	do_while_loop(_Condition &&a_rrCondition)
+	explicit do_while_loop(_Condition &&a_rrCondition)
 		:
-	m_Body(_0(0)),
+	m_Body(Lambda::Null()),
 		m_Condition((_Condition&&)a_rrCondition) {}
 
 	template<typename ..._Arguments>
@@ -408,7 +415,7 @@ struct for_loop :
 	_Increment m_Increment;
 	_Body m_Body;
 
-	for_loop(_Initializer &&a_rrInitializer, _Condition &&a_rrCondition, _Increment &&a_rrIncrement, _Body &&a_rrBody)
+	for_loop(_Initializer &&a_rrInitializer, _Condition &&a_rrCondition, _Increment &&a_rrIncrement, _Body &&a_rrBody = Lambda::Null())
 		:
 	m_Initializer((_Initializer&&)a_rrInitializer),
 		m_Condition((_Condition&&)a_rrCondition),
