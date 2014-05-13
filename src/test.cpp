@@ -68,8 +68,15 @@ int main() {
 	}
 
 	{
-		int x = 0;
-		TEST("0301", (&_0(x))() == &x);
+		struct {
+			int const x = 0;
+		} x;
+		TEST("0301", (&_1)(x) == &x);
+		TEST("0302", (*_1)(&x).x == 0);
+		TEST("0303", (+_1)(1) == 1);
+		TEST("0304", (-_1)(1) == -1);
+		TEST("0305", (!_1)(false) == true);
+		TEST("0306", (!_1)(true) == false);
 		// TODO
 	}
 
